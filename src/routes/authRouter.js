@@ -1,8 +1,8 @@
 import express from "express";
-import {register, login, updateAvatar, resendVerificationEmail, verifyEmail} from "../controllers/authControllers.js";
+import {register, login, updateAvatar, resendVerificationEmail, verifyEmail} from "../constants/controllers/authControllers.js";
 import { auth } from "../middlewares/auth.js";
 import { upload } from "../middlewares/upload.js";
-import { getCurrent, logout } from "../controllers/authControllers.js";
+import { getCurrent, logout } from "../constants/controllers/authControllers.js";
 
 const authRouter = express.Router();
 

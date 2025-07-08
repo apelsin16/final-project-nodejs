@@ -1,9 +1,9 @@
-import HttpError from "../helpers/HttpError.js";
+import HttpError from "../../helpers/HttpError.js";
 import {
   createContactSchema,
   updateContactSchema,
   updateFavoriteSchema,
-} from "../schemas/contactsSchemas.js";
+} from "../../schemas/contactsSchemas.js";
 import * as contactsServices from "../services/contactsServices.js";
 
 // GET /api/contacts?page=&limit=&favorite=
