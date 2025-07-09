@@ -1,7 +1,7 @@
-import User from './User.js';
-import Contact from './Contact.js';
+// import User from './User.js';
+// import Contact from './Contact.js';
 
-User.hasMany(Contact, { foreignKey: 'owner', onDelete: 'CASCADE' });
-Contact.belongsTo(User, { foreignKey: 'owner' });
+// User.hasMany(Contact, { foreignKey: 'owner', onDelete: 'CASCADE' });
+// Contact.belongsTo(User, { foreignKey: 'owner' });
 
-export { User, Contact };
+// export { User, Contact };
