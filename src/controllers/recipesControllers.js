@@ -14,3 +14,15 @@ export const getFavoriteRecipes = async (req, res, next) => {
         next(error);
     }
 };
+
+export const removeFavoriteRecipe = async (req, res, next) => {
+    try {
+        const { recipeId } = req.params;
+
+        const result = await recipesServices.removeFavoriteRecipe(req.user, recipeId);
+
+        res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
