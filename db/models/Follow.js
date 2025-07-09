@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../db/sequelize.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../sequelize.js';
 
 const Follow = sequelize.define(
-    "Follow",
+    'Follow',
     {
         id: {
             type: DataTypes.UUID,
@@ -19,7 +19,7 @@ const Follow = sequelize.define(
         },
     },
     {
-        tableName: "follows",
+        tableName: 'follows',
         timestamps: true,
     }
 );
