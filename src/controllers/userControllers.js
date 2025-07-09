@@ -1,4 +1,6 @@
-import { createUser } from '../services/userServices.js';
+import { createUser, loginUser } from '../services/userServices.js';
+import { loginSchema } from '../schemas/authSchemas.js';
+import HttpError from '../helpers/HttpError.js';
 
 export const registerUser = async (req, res) => {
   try {
@@ -14,5 +16,19 @@ export const registerUser = async (req, res) => {
       return res.status(409).json({ message: 'Email already in use' });
     }
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const login = async (req, res, next) => {
+  try {
+    const { error } = loginSchema.validate(req.body);
+    if (error) throw HttpError(400, error.message);
+
+    const data = await loginUser(req.body);
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('Controller error:', error);
+    next(error);
   }
 };
