@@ -6,10 +6,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import sequelize from './db/sequelize.js';
-
+import testimonialsRouter from './routes/testimonialsRouter.js';
 //import recipesRouter from './src/routes/recipesRouter.js';
 //import userRouter from './src/routes/usersRouter.js';
-import ingredientsRouter from './routes/ingredientsRouter.js'; // ✅ добавили
+import ingredientsRouter from './routes/ingredientsRouter.js'; 
 import { swaggerDocs } from './src/middlewares/swaggerDocs.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +25,8 @@ app.use(express.json());
 // Роуты
 //app.use('/users', userRouter);
 //app.use('/api/recipes', recipesRouter);
-app.use('/api/ingredients', ingredientsRouter); // ✅ подключили маршрут
+app.use('/api/ingredients', ingredientsRouter); 
+app.use("/api/testimonials", testimonialsRouter);
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 
@@ -61,5 +62,10 @@ const start = async () => {
         console.error('❌ Connection error:', error);
     }
 };
+
+if (process.env.NODE_ENV !== 'test') {
+  start();
+}
+
 export default app;
-start();
+
