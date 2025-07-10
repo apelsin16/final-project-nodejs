@@ -6,7 +6,7 @@ import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipe
 
 const recipesRouter = express.Router();
 
-// GET /api/recipes/popular - получить популярные рецепты (публичный эндпоинт)
+// GET /api/recipes/popular - отримати популярні рецепти (публичний)
 recipesRouter.get('/popular', getPopularRecipes);
 
 // Применяем auth middleware ко всем роутам
