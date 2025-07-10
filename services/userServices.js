@@ -1,3 +1,4 @@
+import gravatar from 'gravatar';
 import jwt from 'jsonwebtoken';
 import User from '../db/models/User.js';
 import Follow from '../db/models/Follow.js';
@@ -8,6 +9,7 @@ import bcrypt from 'bcryptjs';
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
 export const createUser = async ({ name, email, password }) => {
+  const avatarURL = gravatar.url(email);
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     throw new Error('Email already exists');
@@ -19,6 +21,7 @@ export const createUser = async ({ name, email, password }) => {
     name,
     email,
     password: hashedPassword,
+    avatarURL,
   });
 
   return newUser;
@@ -80,4 +83,48 @@ export const getFollowingByUserId = async userId => {
   );
 
   return result;
+};
+
+export const getFollowersByUserId = async userId => {
+  const followersLinks = await Follow.findAll({
+    where: { followingId: userId },
+    attributes: ['followerId'],
+  });
+
+  const followerIds = followersLinks.map(link => link.followerId);
+
+  const followers = await User.findAll({
+    where: { id: followerIds },
+    attributes: ['id', 'name', 'avatarURL'],
+  });
+
+  const result = await Promise.all(
+    followers.map(async follower => {
+      const recipes = await Recipe.findAll({
+        where: { ownerId: follower.id },
+        attributes: ['id', 'title', 'thumb'],
+        limit: 4,
+        order: [['createdAt', 'DESC']],
+      });
+
+      const totalRecipes = await Recipe.count({
+        where: { ownerId: follower.id },
+      });
+
+      return {
+        ...follower.toJSON(),
+        recipes,
+        totalRecipes,
+      };
+    })
+  );
+
+  return result;
+};
+
+export const modifyUserAvatar = async (id, avatarURL) => {
+  const user = await User.findOne({ where: { id } });
+  if (!user) throw HttpError(401, 'Not authorized');
+  await user.update({ ...user, avatarURL });
+  return { avatarURL };
 };
