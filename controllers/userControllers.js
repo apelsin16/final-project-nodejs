@@ -5,6 +5,7 @@ import {
   createUser,
   loginUser,
   modifyUserAvatar,
+  getFollowersByUserId,
 } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 
@@ -26,6 +27,14 @@ const login = async (req, res, next) => {
   res.status(200).json(data);
 };
 
+const getFollowersController = async (req, res) => {
+  const userId = req.user.id;
+
+  const followers = await getFollowersByUserId(userId);
+
+  res.json(followers);
+};
+
 const updateUserAvatarController = async (req, res) => {
   let avatar = null;
   if (req.file) {
@@ -39,6 +48,7 @@ const updateUserAvatarController = async (req, res) => {
 };
 
 export default {
+  getFollowersController: ctrlWrapper(getFollowersController),
   registerUser: ctrlWrapper(registerUser),
   login: ctrlWrapper(login),
   updateUserAvatarController: ctrlWrapper(updateUserAvatarController),

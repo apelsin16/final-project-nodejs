@@ -19,5 +19,6 @@ router.patch(
   upload.single('avatar'),
   userControllers.updateUserAvatarController
 );
+router.get('/followers', auth, userControllers.getFollowersController);
 
 export default router;
