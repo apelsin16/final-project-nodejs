@@ -26,3 +26,13 @@ export const removeFavoriteRecipe = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getCategories = async (req, res, next) => {
+    try {
+        const categories = await recipesServices.getCategories();
+
+        res.status(200).json(categories);
+    } catch (error) {
+        next(error);
+    }
+};

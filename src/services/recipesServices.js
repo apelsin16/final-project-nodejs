@@ -59,3 +59,12 @@ export const removeFavoriteRecipe = async (user, recipeId) => {
 
     return { message: 'Recipe removed from favorites', recepy: favorite };
 };
+
+export const getCategories = async () => {
+    const categories = await Category.findAll({
+        attributes: ['id', 'name'],
+        order: [['name', 'ASC']],
+    });
+
+    return categories;
+};
