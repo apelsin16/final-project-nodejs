@@ -1,25 +1,25 @@
-import bcrypt from 'bcryptjs';
-import User from '../../db/models/User.js';
-import HttpError from '../helpers/HttpError.js';
 import jwt from 'jsonwebtoken';
+import User from '../db/models/User.js';
+import HttpError from '../helpers/HttpError.js';
+import bcrypt from 'bcryptjs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret';
 
 export const createUser = async ({ name, email, password }) => {
-  const existingUser = await User.findOne({ where: { email } });
-  if (existingUser) {
-    throw new Error('Email already exists');
-  }
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+        throw new Error('Email already exists');
+    }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = await User.create({
-    name,
-    email,
-    password: hashedPassword,
-  });
+    const newUser = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+    });
 
-  return newUser;
+    return newUser;
 };
 
 export const loginUser = async ({ email, password }) => {

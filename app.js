@@ -9,9 +9,11 @@ import sequelize from './db/sequelize.js';
 
 // import contactsRouter from "./src/routes/contactsRouter.js";
 // import authRouter from "./src/routes/authRouter.js";
-import recipesRouter from './src/routes/recipesRouter.js';
-import userRouter from './src/routes/usersRouter.js';
-import { swaggerDocs } from './src/middlewares/swaggerDocs.js';
+
+import userRouter from './routes/usersRouter.js';
+import recipesRouter from './routes/recipesRouter.js';
+import ingredientsRouter from './routes/ingredientsRouter.js';
+import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +31,7 @@ app.use(express.json());
 // app.use("/api/auth", authRouter);
 app.use('/users', userRouter);
 app.use('/api/recipes', recipesRouter);
+app.use('/api/ingredients', ingredientsRouter);
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 const swaggerMiddleware = swaggerDocs();
