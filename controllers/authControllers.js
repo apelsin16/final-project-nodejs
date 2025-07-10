@@ -1,7 +1,6 @@
 import {
     registerUser,
     loginUser,
-    logoutUser,
     getCurrentUser,
     updateUserAvatar,
     verifyUserByToken,
@@ -19,10 +18,7 @@ export const login = ctrlWrapper(async (req, res) => {
     res.json(result);
 });
 
-export const logout = ctrlWrapper(async (req, res) => {
-    await logoutUser(req.user);
-    res.status(204).send();
-});
+
 
 export const getCurrent = ctrlWrapper(async (req, res) => {
     const result = await getCurrentUser(req.user);
