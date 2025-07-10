@@ -29,7 +29,7 @@ app.use(express.json());
 
 // app.use("/api/contacts", contactsRouter);
 // app.use("/api/auth", authRouter);
-app.use('/users', userRouter);
+app.use('/api/users', userRouter);
 app.use('/api/recipes', recipesRouter);
 app.use('/api/ingredients', ingredientsRouter);
 
