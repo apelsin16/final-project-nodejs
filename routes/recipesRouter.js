@@ -7,6 +7,9 @@ import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipe
 
 const recipesRouter = express.Router();
 
+// GET /api/recipes/categories - получить список всех категорий (публичный ендпоинт)
+recipesRouter.get('/categories', recipesController.getCategories);
+
 // GET /api/recipes/areas - получить список всех регионов (публичный ендпоинт)
 recipesRouter.get('/areas', recipesController.getAreas);
 

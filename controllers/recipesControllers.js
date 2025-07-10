@@ -82,6 +82,12 @@ const getAreas = async (req, res, next) => {
     res.status(200).json(areas);
 };
 
+const getCategories = async (req, res, next) => {
+    const categories = await recipesServices.getCategories();
+
+    res.status(200).json(categories);
+};
+
 export default {
     getFavoriteRecipes: ctrlWrapper(getFavoriteRecipes),
     removeFavoriteRecipe: ctrlWrapper(removeFavoriteRecipe),
@@ -89,4 +95,5 @@ export default {
     deleteOwnRecipe: ctrlWrapper(deleteOwnRecipe),
     addToFavorites: ctrlWrapper(addToFavorites),
     getAreas: ctrlWrapper(getAreas),
+    getCategories: ctrlWrapper(getCategories),
 };

@@ -1,6 +1,7 @@
 import Favorite from '../db/models/Favorite.js';
 import Recipe from '../db/models/Recipe.js';
 import Area from '../db/models/Area.js';
+import Category from '../db/models/Category.js';
 import HttpError from '../helpers/HttpError.js';
 
 export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
@@ -68,4 +69,13 @@ export const getAreas = async () => {
     });
 
     return areas;
+};
+
+export const getCategories = async () => {
+    const categories = await Category.findAll({
+        attributes: ['id', 'name'],
+        order: [['name', 'ASC']],
+    });
+
+    return categories;
 };
