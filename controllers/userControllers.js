@@ -6,6 +6,7 @@ import {
   loginUser,
   modifyUserAvatar,
   getFollowersByUserId,
+  getFollowingByUserId,
 } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 
@@ -25,6 +26,14 @@ const login = async (req, res, next) => {
   const data = await loginUser(req.body);
 
   res.status(200).json(data);
+};
+
+const getFollowingController = async (req, res) => {
+  const userId = req.user.id;
+
+  const following = await getFollowingByUserId(userId);
+
+  res.json(following);
 };
 
 const getFollowersController = async (req, res) => {
@@ -52,4 +61,5 @@ export default {
   registerUser: ctrlWrapper(registerUser),
   login: ctrlWrapper(login),
   updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
+  getFollowingController: ctrlWrapper(getFollowingController),
 };
