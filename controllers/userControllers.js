@@ -7,6 +7,7 @@ import {
   modifyUserAvatar,
   getFollowersByUserId,
   getFollowingByUserId,
+  logoutUser
 } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 
@@ -56,10 +57,16 @@ const updateUserAvatarController = async (req, res) => {
   res.json(result);
 };
 
+export const logout = ctrlWrapper(async (req, res) => {
+  await logoutUser(req.user);
+  res.status(204).send();
+});
+
 export default {
   getFollowersController: ctrlWrapper(getFollowersController),
   registerUser: ctrlWrapper(registerUser),
   login: ctrlWrapper(login),
+  logout: ctrlWrapper(logout),
   updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
   getFollowingController: ctrlWrapper(getFollowingController),
 };
