@@ -1,21 +1,31 @@
-import express from "express";
-import auth from "../middlewares/auth.js";
-import recipesController from "../controllers/recipesController.js";
-import ctrlWrapper from "../helpers/controllerWrapper.js";
+import express from 'express';
+import recipesController from '../controllers/recipesControllers.js';
+import ctrlWrapper from '../helpers/controllerWrapper.js';
+import { auth } from '../middlewares/auth.js';
+import { validateQuery, validateParams } from '../middlewares/validation.js';
+import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipesSchemas.js';
 
-const router = express.Router();
+const recipesRouter = express.Router();
 
-// Отримати власні рецепти
-router.get("/own", auth, ctrlWrapper(recipesController.getOwnRecipes));
+// Применяем auth middleware ко всем роутам
+recipesRouter.use(auth);
+
+recipesRouter.get('/own', ctrlWrapper(recipesController.getOwnRecipes));
 
 // Видалити власний рецепт
-router.delete("/:id", auth, ctrlWrapper(recipesController.deleteOwnRecipe));
+recipesRouter.delete('/:id', ctrlWrapper(recipesController.deleteOwnRecipe));
 
 // Додати рецепт до списку улюблених
-router.post(
-  "/:id/favorite",
-  auth,
-  ctrlWrapper(recipesController.addToFavorites)
+recipesRouter.post('/:id/favorite', ctrlWrapper(recipesController.addToFavorites));
+
+// GET /api/recipes/favorites - получить любимые рецепты пользователя
+recipesRouter.get('/favorites', validateQuery(getFavoritesQuerySchema), recipesController.getFavoriteRecipes);
+
+// DELETE /api/recipes/favorites/:recipeId - удалить рецепт из избранного
+recipesRouter.delete(
+    '/favorites/:recipeId',
+    validateParams(recipeIdParamsSchema),
+    recipesController.removeFavoriteRecipe
 );
 
-export default router;
+export default recipesRouter;

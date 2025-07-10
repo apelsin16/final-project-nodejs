@@ -1,5 +1,5 @@
-import { User, Recipe, Category, Area, Ingredient } from '../../db/models/index.js';
-import Favorite from '../../db/models/Favorite.js';
+import Favorite from '../db/models/Favorite.js';
+import Recipe from '../db/models/Recipe.js';
 import HttpError from '../helpers/HttpError.js';
 
 export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
