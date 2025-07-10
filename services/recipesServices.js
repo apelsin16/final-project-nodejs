@@ -1,5 +1,7 @@
 import Favorite from "../db/models/Favorite.js";
 import Recipe from "../db/models/Recipe.js";
+import Area from '../db/models/Area.js';
+import Category from '../db/models/Category.js';
 import HttpError from "../helpers/HttpError.js";
 import User from "../db/models/User.js";
 
@@ -94,4 +96,22 @@ export const removeFavoriteRecipe = async (user, recipeId) => {
   await favorite.destroy();
 
   return { message: "Recipe removed from favorites", recepy: favorite };
+};
+
+export const getAreas = async () => {
+    const areas = await Area.findAll({
+        attributes: ['id', 'name'],
+        order: [['name', 'ASC']],
+    });
+
+    return areas;
+};
+
+export const getCategories = async () => {
+    const categories = await Category.findAll({
+        attributes: ['id', 'name'],
+        order: [['name', 'ASC']],
+    });
+
+    return categories;
 };

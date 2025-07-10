@@ -10,7 +10,13 @@ import {
 
 const recipesRouter = express.Router();
 
-// Применяем auth middleware ко всем роутам
+// GET /api/recipes/categories - получить список всех категорий (публичный ендпоинт)
+recipesRouter.get('/categories', recipesController.getCategories);
+
+// GET /api/recipes/areas - получить список всех регионов (публичный ендпоинт)
+recipesRouter.get('/areas', recipesController.getAreas);
+
+// Применяем auth middleware к приватным роутам
 recipesRouter.use(auth);
 
 recipesRouter.get("/own", ctrlWrapper(recipesController.getOwnRecipes));
