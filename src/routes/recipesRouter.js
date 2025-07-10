@@ -1,12 +1,15 @@
 import express from 'express';
-import { getFavoriteRecipes, removeFavoriteRecipe } from '../controllers/recipesControllers.js';
+import { getRecipeById, getFavoriteRecipes, removeFavoriteRecipe } from '../controllers/recipesControllers.js';
 import { auth } from '../middlewares/auth.js';
 import { validateQuery, validateParams } from '../middlewares/validation.js';
 import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipesSchemas.js';
 
 const recipesRouter = express.Router();
 
-// Применяем auth middleware ко всем роутам
+// Публічний роут для отримання детальної інформації про рецепт за id
+recipesRouter.get('/:recipeId', validateParams(recipeIdParamsSchema), getRecipeById);
+
+// Применяем auth middleware к защищенным роутам
 recipesRouter.use(auth);
 
 // GET /api/recipes/favorites - получить любимые рецепты пользователя

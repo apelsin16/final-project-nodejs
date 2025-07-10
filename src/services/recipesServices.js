@@ -2,6 +2,42 @@ import { User, Recipe, Category, Area, Ingredient } from '../../db/models/index.
 import Favorite from '../../db/models/Favorite.js';
 import HttpError from '../helpers/HttpError.js';
 
+export const getRecipeById = async (recipeId) => {
+    const recipe = await Recipe.findByPk(recipeId, {
+        include: [
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'email', 'avatarURL'],
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
+        ],
+    });
+
+    if (!recipe) {
+        throw HttpError(404, 'Recipe not found');
+    }
+
+    return recipe;
+};
+
 export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
     const offset = (page - 1) * limit;
 
