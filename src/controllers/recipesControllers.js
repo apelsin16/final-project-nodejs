@@ -26,3 +26,17 @@ export const removeFavoriteRecipe = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getPopularRecipes = async (req, res, next) => {
+    try {
+        const { limit = 4 } = req.query;
+
+        const result = await recipesServices.getPopularRecipes({ limit });
+
+        res.status(200).json({
+            recipes: result.recipes,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

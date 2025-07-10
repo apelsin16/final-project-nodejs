@@ -1,4 +1,4 @@
-import { User, Recipe, Category, Area, Ingredient } from '../../db/models/index.js';
+import { User, Recipe, Category, Area, Ingredient, sequelize } from '../../db/models/index.js';
 import Favorite from '../../db/models/Favorite.js';
 import HttpError from '../helpers/HttpError.js';
 
@@ -58,4 +58,49 @@ export const removeFavoriteRecipe = async (user, recipeId) => {
     await favorite.destroy();
 
     return { message: 'Recipe removed from favorites', recepy: favorite };
+};
+
+export const getPopularRecipes = async ({ limit = 10 }) => {
+    // Отримуємо рецепти з кількістю додавань в улюблені
+    const recipes = await Recipe.findAll({
+        attributes: {
+            include: [
+                [
+                    sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM favorites
+                        WHERE favorites."recipeId" = "Recipe"."id"
+                    )`),
+                    'favorites_count'
+                ]
+            ]
+        },
+        include: [
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'avatarURL']
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name']
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name']
+            }
+        ],
+        order: [
+            [sequelize.literal('favorites_count'), 'DESC'],
+            ['createdAt', 'DESC']
+        ],
+        limit: parseInt(limit),
+        subQuery: false
+    });
+
+    return {
+        recipes: recipes || [],
+    };
 };

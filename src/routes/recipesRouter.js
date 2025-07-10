@@ -1,10 +1,13 @@
 import express from 'express';
-import { getFavoriteRecipes, removeFavoriteRecipe } from '../controllers/recipesControllers.js';
+import { getFavoriteRecipes, removeFavoriteRecipe, getPopularRecipes } from '../controllers/recipesControllers.js';
 import { auth } from '../middlewares/auth.js';
 import { validateQuery, validateParams } from '../middlewares/validation.js';
 import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipesSchemas.js';
 
 const recipesRouter = express.Router();
+
+// GET /api/recipes/popular - получить популярные рецепты (публичный эндпоинт)
+recipesRouter.get('/popular', getPopularRecipes);
 
 // Применяем auth middleware ко всем роутам
 recipesRouter.use(auth);
