@@ -23,4 +23,6 @@ router.patch(
 router.get('/followers', auth, userControllers.getFollowersController);
 router.post('/logout', auth, userControllers.logout);
 
+router.get('/current', auth, userControllers.getCurrent);
+
 export default router;

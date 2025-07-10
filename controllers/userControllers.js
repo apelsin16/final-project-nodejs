@@ -1,32 +1,20 @@
-import { rename } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
-
-import {
-  createUser,
-  loginUser,
-  modifyUserAvatar,
-  getFollowersByUserId,
-  getFollowingByUserId,
-  logoutUser
-} from '../services/userServices.js';
+import { createUser, loginUser } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 
-const avatarsDir = resolve('public', 'avatars');
-
 export const registerUser = async (req, res) => {
-  const user = await createUser(req.body);
-  res.status(201).json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    avatarURL: user.avatarURL,
-  });
+    const user = await createUser(req.body);
+    res.status(201).json({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatarURL: user.avatarURL,
+    });
 };
 
 const login = async (req, res, next) => {
-  const data = await loginUser(req.body);
+    const data = await loginUser(req.body);
 
-  res.status(200).json(data);
+    res.status(200).json(data);
 };
 
 const getFollowingController = async (req, res) => {
@@ -62,6 +50,10 @@ export const logout = ctrlWrapper(async (req, res) => {
   res.status(204).send();
 });
 
+const getCurrent = async (req, res) => {
+    res.status(200).json({ ...req.user.dataValues });
+};
+
 export default {
   getFollowersController: ctrlWrapper(getFollowersController),
   registerUser: ctrlWrapper(registerUser),
@@ -69,4 +61,5 @@ export default {
   logout: ctrlWrapper(logout),
   updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
   getFollowingController: ctrlWrapper(getFollowingController),
+  getCurrent: ctrlWrapper(getCurrent),
 };
