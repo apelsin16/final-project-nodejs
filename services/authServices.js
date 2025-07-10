@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User.js';
+import User from '../db/models/User.js';
 import HttpError from '../helpers/HttpError.js';
 import jwt from 'jsonwebtoken';
 import fs from 'fs/promises';
@@ -61,13 +61,7 @@ export const loginUser = async ({ email, password }) => {
     };
 };
 
-export const logoutUser = async user => {
-    if (!user) {
-        throw HttpError(401, 'Not authorized');
-    }
-    user.token = null;
-    await user.save();
-};
+
 
 export const getCurrentUser = async user => {
     if (!user) {

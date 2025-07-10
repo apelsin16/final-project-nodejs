@@ -94,6 +94,6 @@ export default {
     getOwnRecipes: ctrlWrapper(getOwnRecipes),
     deleteOwnRecipe: ctrlWrapper(deleteOwnRecipe),
     addToFavorites: ctrlWrapper(addToFavorites),
-    getAreas: ctrlWrapper(getAreas),
     getCategories: ctrlWrapper(getCategories),
+    getAreas: ctrlWrapper(getAreas)
 };
