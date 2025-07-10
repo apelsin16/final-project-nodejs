@@ -13,6 +13,7 @@ router.post(
   userControllers.registerUser
 );
 router.post('/login', validateBody(loginSchema), userControllers.login);
+router.get('/following', auth, userControllers.getFollowingController);
 router.patch(
   '/avatars',
   auth,
