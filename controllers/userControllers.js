@@ -17,12 +17,49 @@ const login = async (req, res, next) => {
     res.status(200).json(data);
 };
 
+const getFollowingController = async (req, res) => {
+  const userId = req.user.id;
+
+  const following = await getFollowingByUserId(userId);
+
+  res.json(following);
+};
+
+const getFollowersController = async (req, res) => {
+  const userId = req.user.id;
+
+  const followers = await getFollowersByUserId(userId);
+
+  res.json(followers);
+};
+
+const updateUserAvatarController = async (req, res) => {
+  let avatar = null;
+  if (req.file) {
+    const { path: oldPath, filename } = req.file;
+    const newPath = join(avatarsDir, filename);
+    await rename(oldPath, newPath);
+    avatar = join('avatars', filename);
+  }
+  const result = await modifyUserAvatar(req.user.id, avatar);
+  res.json(result);
+};
+
+export const logout = ctrlWrapper(async (req, res) => {
+  await logoutUser(req.user);
+  res.status(204).send();
+});
+
 const getCurrent = async (req, res) => {
     res.status(200).json({ ...req.user.dataValues });
 };
 
 export default {
-    registerUser: ctrlWrapper(registerUser),
-    login: ctrlWrapper(login),
-    getCurrent: ctrlWrapper(getCurrent),
+  getFollowersController: ctrlWrapper(getFollowersController),
+  registerUser: ctrlWrapper(registerUser),
+  login: ctrlWrapper(login),
+  logout: ctrlWrapper(logout),
+  updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
+  getFollowingController: ctrlWrapper(getFollowingController),
+  getCurrent: ctrlWrapper(getCurrent),
 };

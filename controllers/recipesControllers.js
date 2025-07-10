@@ -76,10 +76,24 @@ const addToFavorites = async (req, res, next) => {
     res.status(201).json({ message: 'Recipe added to favorites' });
 };
 
+const getAreas = async (req, res, next) => {
+    const areas = await recipesServices.getAreas();
+
+    res.status(200).json(areas);
+};
+
+const getCategories = async (req, res, next) => {
+    const categories = await recipesServices.getCategories();
+
+    res.status(200).json(categories);
+};
+
 export default {
     getFavoriteRecipes: ctrlWrapper(getFavoriteRecipes),
     removeFavoriteRecipe: ctrlWrapper(removeFavoriteRecipe),
     getOwnRecipes: ctrlWrapper(getOwnRecipes),
     deleteOwnRecipe: ctrlWrapper(deleteOwnRecipe),
     addToFavorites: ctrlWrapper(addToFavorites),
+    getCategories: ctrlWrapper(getCategories),
+    getAreas: ctrlWrapper(getAreas)
 };
