@@ -1,12 +1,15 @@
 import express from 'express';
-import { getFavoriteRecipes, removeFavoriteRecipe } from '../controllers/recipesControllers.js';
+import { getFavoriteRecipes, removeFavoriteRecipe, getAreas } from '../controllers/recipesControllers.js';
 import { auth } from '../middlewares/auth.js';
 import { validateQuery, validateParams } from '../middlewares/validation.js';
 import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipesSchemas.js';
 
 const recipesRouter = express.Router();
 
-// Применяем auth middleware ко всем роутам
+// GET /api/recipes/areas - получить список всех регионов (публичный ендпоинт)
+recipesRouter.get('/areas', getAreas);
+
+// Применяем auth middleware к приватным роутам
 recipesRouter.use(auth);
 
 // GET /api/recipes/favorites - получить любимые рецепты пользователя

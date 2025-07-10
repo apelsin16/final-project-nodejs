@@ -26,3 +26,13 @@ export const removeFavoriteRecipe = async (req, res, next) => {
         next(error);
     }
 };
+
+export const getAreas = async (req, res, next) => {
+    try {
+        const areas = await recipesServices.getAreas();
+
+        res.status(200).json(areas);
+    } catch (error) {
+        next(error);
+    }
+};

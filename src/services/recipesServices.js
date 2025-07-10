@@ -59,3 +59,12 @@ export const removeFavoriteRecipe = async (user, recipeId) => {
 
     return { message: 'Recipe removed from favorites', recepy: favorite };
 };
+
+export const getAreas = async () => {
+    const areas = await Area.findAll({
+        attributes: ['id', 'name'],
+        order: [['name', 'ASC']],
+    });
+
+    return areas;
+};
