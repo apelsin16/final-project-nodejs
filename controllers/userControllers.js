@@ -17,7 +17,12 @@ const login = async (req, res, next) => {
     res.status(200).json(data);
 };
 
+const getCurrent = async (req, res) => {
+    res.status(200).json({ ...req.user.dataValues });
+};
+
 export default {
     registerUser: ctrlWrapper(registerUser),
     login: ctrlWrapper(login),
+    getCurrent: ctrlWrapper(getCurrent),
 };
