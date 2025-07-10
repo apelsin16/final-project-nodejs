@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -8,7 +11,7 @@ import { fileURLToPath } from 'url';
 import sequelize from './db/sequelize.js';
 
 // import contactsRouter from "./src/routes/contactsRouter.js";
-// import authRouter from "./src/routes/authRouter.js";
+import authRouter from "./src/routes/authRouter.js";
 import recipesRouter from './src/routes/recipesRouter.js';
 import userRouter from './src/routes/usersRouter.js';
 import { swaggerDocs } from './src/middlewares/swaggerDocs.js';
@@ -26,7 +29,7 @@ app.use(cors());
 app.use(express.json());
 
 // app.use("/api/contacts", contactsRouter);
-// app.use("/api/auth", authRouter);
+app.use("/api/auth", authRouter);
 app.use('/users', userRouter);
 app.use('/api/recipes', recipesRouter);
 

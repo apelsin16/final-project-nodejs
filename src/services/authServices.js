@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { User } from '../models/User.js';
+import User from '../../db/models/User.js';
 import HttpError from '../helpers/HttpError.js';
 import jwt from 'jsonwebtoken';
 import fs from 'fs/promises';
