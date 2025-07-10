@@ -1,9 +1,15 @@
+import { rename } from 'node:fs/promises';
+import { resolve, join } from 'node:path';
+
 import {
   createUser,
-  getFollowersByUserId,
   loginUser,
+  modifyUserAvatar,
+  getFollowersByUserId,
 } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
+
+const avatarsDir = resolve('public', 'avatars');
 
 export const registerUser = async (req, res) => {
   const user = await createUser(req.body);
@@ -29,8 +35,21 @@ const getFollowersController = async (req, res) => {
   res.json(followers);
 };
 
+const updateUserAvatarController = async (req, res) => {
+  let avatar = null;
+  if (req.file) {
+    const { path: oldPath, filename } = req.file;
+    const newPath = join(avatarsDir, filename);
+    await rename(oldPath, newPath);
+    avatar = join('avatars', filename);
+  }
+  const result = await modifyUserAvatar(req.user.id, avatar);
+  res.json(result);
+};
+
 export default {
+  getFollowersController: ctrlWrapper(getFollowersController),
   registerUser: ctrlWrapper(registerUser),
   login: ctrlWrapper(login),
-  getFollowersController: ctrlWrapper(getFollowersController),
+  updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
 };
