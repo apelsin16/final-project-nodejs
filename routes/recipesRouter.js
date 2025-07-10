@@ -7,7 +7,10 @@ import { getFavoritesQuerySchema, recipeIdParamsSchema } from '../schemas/recipe
 
 const recipesRouter = express.Router();
 
-// Применяем auth middleware ко всем роутам
+// GET /api/recipes/categories - получить список всех категорий (публичный ендпоинт)
+recipesRouter.get('/categories', recipesController.getCategories);
+
+// Применяем auth middleware к приватным роутам
 recipesRouter.use(auth);
 
 recipesRouter.get('/own', ctrlWrapper(recipesController.getOwnRecipes));
