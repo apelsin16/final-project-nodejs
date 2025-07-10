@@ -59,3 +59,43 @@ export const removeFavoriteRecipe = async (user, recipeId) => {
 
     return { message: 'Recipe removed from favorites', recepy: favorite };
 };
+
+export const createRecipe = async (user, recipeData) => {
+    // Validate that category exists
+    const category = await Category.findByPk(recipeData.categoryId);
+    if (!category) {
+        throw HttpError(400, 'Category not found');
+    }
+
+    // Validate that area exists if provided
+    if (recipeData.areaId) {
+        const area = await Area.findByPk(recipeData.areaId);
+        if (!area) {
+            throw HttpError(400, 'Area not found');
+        }
+    }
+
+    // Create the recipe with the user as owner
+    const newRecipe = await Recipe.create({
+        ...recipeData,
+        ownerId: user.id,
+    });
+
+    // Fetch the created recipe with associations
+    const createdRecipe = await Recipe.findByPk(newRecipe.id, {
+        include: [
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+        ],
+    });
+
+    return createdRecipe;
+};

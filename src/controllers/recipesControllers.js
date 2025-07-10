@@ -26,3 +26,18 @@ export const removeFavoriteRecipe = async (req, res, next) => {
         next(error);
     }
 };
+
+export const createRecipe = async (req, res, next) => {
+    try {
+        const recipeData = req.body;
+        
+        const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
+
+        res.status(201).json({
+            message: 'Recipe created successfully',
+            recipe: newRecipe,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
