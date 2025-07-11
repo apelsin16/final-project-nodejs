@@ -1,11 +1,11 @@
-import Ingredient from '../db/models/Ingredient.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
+import { getAllIngredients } from '../services/ingredientsService.js';
 
 export const getIngredients = async (_, res) => {
-    const ingredients = await Ingredient.findAll();
-    res.status(200).json(ingredients);
+  const ingredients = await getAllIngredients();
+  res.status(200).json(ingredients);
 };
 
 export default {
-    getIngredients: ctrlWrapper(getIngredients),
+  getIngredients: ctrlWrapper(getIngredients),
 };
