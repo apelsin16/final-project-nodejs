@@ -2,40 +2,200 @@
   "openapi": "3.1.0",
   "info": {
     "version": "1.0.0",
-    "title": "Students app",
+    "title": "Foodies API",
     "license": {
       "name": "Apache 2.0",
       "url": "<http://www.apache.org/licenses/LICENSE-2.0.html>"
     },
-    "description": "This is a documentation of students app\n"
+    "description": "API для приложения Foodies - платформа для рецептов и кулинарии\n"
   },
   "servers": [
     {
-      "url": "<http://localhost:3000>"
-    },
-    {
-      "url": "<https://example.com/api/v1>"
+      "url": "<http://localhost:3000>",
+      "description": "Development server"
     }
   ],
   "tags": [
     {
-      "name": "Students",
-      "description": "Operations about users."
+      "name": "Users",
+      "description": "Операции с пользователями"
     },
     {
       "name": "Auth",
-      "description": "Auth operations."
+      "description": "Авторизация и аутентификация"
+    },
+    {
+      "name": "Recipes",
+      "description": "Операции с рецептами"
+    },
+    {
+      "name": "Ingredients",
+      "description": "Операции с ингредиентами"
+    },
+    {
+      "name": "Categories",
+      "description": "Категории блюд"
+    },
+    {
+      "name": "Areas",
+      "description": "Кухни мира"
+    },
+    {
+      "name": "Testimonials",
+      "description": "Отзывы пользователей"
     }
   ],
   "paths": {
-    "/students": {
+    "/api/users/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Регистрация пользователя",
+        "description": "Создание нового аккаунта пользователя",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Пользователь успешно зарегистрирован",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User created successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Ошибка валидации"
+          }
+        }
+      }
+    },
+    "/api/users/signin": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Авторизация пользователя",
+        "description": "Вход в систему",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "john@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешная авторизация",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "email": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверные учетные данные"
+          }
+        }
+      }
+    },
+    "/api/recipes": {
       "get": {
         "tags": [
-          "Students"
+          "Recipes"
         ],
-        "summary": "Get list of students",
-        "operationId": "getStudents",
-        "description": "Get list of users with this endpoint",
+        "summary": "Получить список рецептов",
+        "description": "Получение списка рецептов с возможностью фильтрации",
         "security": [
           {
             "bearerAuth": []
@@ -46,149 +206,71 @@
             "in": "query",
             "name": "page",
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "default": 1
             },
-            "example": 1
+            "description": "Номер страницы"
           },
           {
             "in": "query",
-            "name": "perPage",
+            "name": "limit",
             "schema": {
               "type": "integer",
-              "example": 10
-            }
-          },
-          {
-            "in": "query",
-            "name": "sortBy",
-            "schema": {
-              "type": "string",
-              "example": "age"
+              "default": 10
             },
-            "description": "All student's fields can be mentioned. Default value - _id"
+            "description": "Количество рецептов на странице"
           },
           {
             "in": "query",
-            "name": "sortOrder",
+            "name": "category",
             "schema": {
-              "type": "string",
-              "enum": [
-                "asc",
-                "desc"
-              ],
-              "example": "asc"
-            }
-          },
-          {
-            "in": "query",
-            "name": "minAvgMark",
-            "schema": {
-              "type": "number",
-              "example": 4
-            }
-          },
-          {
-            "in": "query",
-            "name": "maxAvgMark",
-            "schema": {
-              "type": "number",
-              "example": 10
-            }
-          },
-          {
-            "in": "query",
-            "name": "minAge",
-            "schema": {
-              "type": "number",
-              "example": 10
-            }
-          },
-          {
-            "in": "query",
-            "name": "maxAge",
-            "schema": {
-              "type": "number",
-              "example": 16
-            }
-          },
-          {
-            "in": "query",
-            "name": "gender",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "male",
-                "female",
-                "other"
-              ],
-              "example": "male"
-            }
+              "type": "string"
+            },
+            "description": "Фильтр по категории"
           }
         ],
         "responses": {
           "200": {
-            "description": "Successfully found students!",
+            "description": "Список рецептов получен успешно",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "status",
-                    "message",
-                    "data"
-                  ],
                   "properties": {
-                    "status": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Successfully found students!"
-                    },
                     "data": {
-                      "type": "object",
-                      "required": [
-                        "data",
-                        "page",
-                        "perPage",
-                        "totalItems",
-                        "totalPages",
-                        "hasNextPage",
-                        "hasPreviousPage"
-                      ],
-                      "properties": {
-                        "data": {
-                          "type": "array",
-                          "items": {
-                            "$ref": "#/components/schemas/students"
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "instructions": {
+                            "type": "string"
+                          },
+                          "time": {
+                            "type": "string"
+                          },
+                          "thumb": {
+                            "type": "string"
                           }
-                        },
-                        "page": {
-                          "type": "number",
-                          "example": 2
-                        },
-                        "perPage": {
-                          "type": "number",
-                          "example": 4
-                        },
-                        "totalItems": {
-                          "type": "number",
-                          "example": 4
-                        },
-                        "totalPages": {
-                          "type": "number",
-                          "example": 4
-                        },
-                        "hasNextPage": {
-                          "type": "boolean",
-                          "example": false
-                        },
-                        "hasPreviousPage": {
-                          "type": "boolean",
-                          "example": true
                         }
                       }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "totalPages": {
+                      "type": "integer"
                     }
                   }
                 }
@@ -196,171 +278,7 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/401"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Students"
-        ],
-        "summary": "Create student",
-        "operationId": "createStudent",
-        "description": "Create a student with payload",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "name",
-                  "age",
-                  "gender",
-                  "avgMark",
-                  "parentId"
-                ],
-                "properties": {
-                  "name": {
-                    "description": "Student's name",
-                    "type": "string",
-                    "example": "John Doe"
-                  },
-                  "age": {
-                    "description": "Student's age",
-                    "type": "number",
-                    "example": 12
-                  },
-                  "gender": {
-                    "description": "Student's age",
-                    "type": "string",
-                    "enum": [
-                      "male",
-                      "female",
-                      "other"
-                    ]
-                  },
-                  "avgMark": {
-                    "description": "Student's average mark. Should be between 1 and 12",
-                    "type": "number",
-                    "example": 9.7
-                  },
-                  "onDuty": {
-                    "description": "Whether is student on duty",
-                    "type": "boolean",
-                    "example": false
-                  },
-                  "parentId": {
-                    "description": "Student's parent id",
-                    "type": "string",
-                    "example": "65e4decdd286b30065d54af9"
-                  },
-                  "photo": {
-                    "description": "Student''s photo",
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Creates a student",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "status",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "status": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Successfully created a student!"
-                    },
-                    "data": {
-                      "type": "object",
-                      "$ref": "#/components/schemas/students"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          }
-        }
-      }
-    },
-    "/students/{id}": {
-      "get": {
-        "tags": [
-          "Students"
-        ],
-        "summary": "Get student by id",
-        "operationId": "getStudent",
-        "description": "Get student by id",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "65ca67e7ae7f10c88b598384"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Get student by id",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "status",
-                    "message",
-                    "data"
-                  ],
-                  "properties": {
-                    "status": {
-                      "type": "integer",
-                      "example": 200
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Successfully found student with id 65ca67e7ae7f10c88b598384!"
-                    },
-                    "data": {
-                      "type": "object",
-                      "$ref": "#/components/schemas/students"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
+            "description": "Не авторизован"
           }
         }
       }
@@ -371,104 +289,6 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer"
-      }
-    },
-    "schemas": {
-      "students": {
-        "type": "object",
-        "required": [
-          "_id",
-          "name",
-          "age",
-          "gender",
-          "avgMark",
-          "onDuty"
-        ],
-        "properties": {
-          "_id": {
-            "description": "Student's id",
-            "type": "string",
-            "example": "65e4decdd286b30065d54af9"
-          },
-          "name": {
-            "description": "Student's name",
-            "type": "string",
-            "example": "John Doe"
-          },
-          "age": {
-            "description": "Student's age",
-            "type": "number",
-            "example": 12
-          },
-          "gender": {
-            "description": "Student's age",
-            "type": "string",
-            "enum": [
-              "male",
-              "female",
-              "other"
-            ]
-          },
-          "avgMark": {
-            "description": "Student's average mark. Should be between 1 and 12",
-            "type": "number",
-            "example": 9.7
-          },
-          "onDuty": {
-            "description": "Whether is student on duty",
-            "type": "boolean",
-            "example": false
-          },
-          "parentId": {
-            "description": "Student's parent id",
-            "type": "string",
-            "example": "65e4decdd286b30065d54af9"
-          },
-          "photo": {
-            "description": "Link to student's photo",
-            "type": "string",
-            "example": "<https://res.cloudinary.com/uqwgdu/image/upload/image.png>"
-          }
-        }
-      }
-    },
-    "responses": {
-      "401": {
-        "description": "Unauthorized error",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "required": [
-                "status",
-                "message",
-                "data"
-              ],
-              "properties": {
-                "status": {
-                  "type": "integer",
-                  "example": 401
-                },
-                "message": {
-                  "type": "string",
-                  "example": "UnauthorizedError"
-                },
-                "data": {
-                  "type": "object",
-                  "required": [
-                    "message"
-                  ],
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Access token expired"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
       }
     }
   }
