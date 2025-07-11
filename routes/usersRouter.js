@@ -25,4 +25,6 @@ router.post('/logout', auth, userControllers.logout);
 
 router.get('/current', auth, userControllers.getCurrent);
 
+router.delete('/:id/follow', auth, userControllers.unfollowUserController);
+
 export default router;

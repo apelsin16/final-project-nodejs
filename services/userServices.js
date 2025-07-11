@@ -136,3 +136,15 @@ export const modifyUserAvatar = async (id, avatarURL) => {
   await user.update({ ...user, avatarURL });
   return { avatarURL };
 };
+
+export const unfollowUser = async (followerId, followingId) => {
+  if (followerId === followingId) {
+    throw HttpError(400, 'You cannot unfollow yourself');
+  }
+  const follow = await Follow.findOne({ where: { followerId, followingId } });
+  if (!follow) {
+    throw HttpError(404, 'You are not following this user');
+  }
+  await follow.destroy();
+  return { message: 'Successfully unfollowed the user' };
+};
