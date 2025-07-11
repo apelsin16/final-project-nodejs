@@ -16,7 +16,7 @@ import { fileURLToPath } from 'url';
 
 // import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
-
+import testimonialsRouter from './routes/testimonialsRouter.js';
 import userRouter from './routes/usersRouter.js';
 import recipesRouter from './routes/recipesRouter.js';
 import ingredientsRouter from './routes/ingredientsRouter.js';
@@ -40,7 +40,7 @@ app.use("/api/auth", authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/recipes', recipesRouter);
 app.use('/api/ingredients', ingredientsRouter);
-
+app.use('/api/testimonials', testimonialsRouter);
 app.use('/uploads', express.static(UPLOAD_DIR));
 const swaggerMiddleware = swaggerDocs();
 if (Array.isArray(swaggerMiddleware)) {
