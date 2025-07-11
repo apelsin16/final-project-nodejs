@@ -9,10 +9,7 @@ const getRecipeById = async (req, res, next) => {
 
         const recipe = await recipesServices.getRecipeById(recipeId);
 
-        res.status(200).json({
-            success: true,
-            data: recipe,
-        });
+        res.status(200).json(recipe);
     } catch (error) {
         next(error);
     }
