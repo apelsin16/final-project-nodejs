@@ -14,31 +14,24 @@ export const createUser = async ({ name, email, password }) => {
   if (existingUser) {
     throw new Error('Email already exists');
   }
-
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const newUser = await User.create({
     name,
     email,
     password: hashedPassword,
     avatarURL,
   });
-
   return newUser;
 };
 
 export const loginUser = async ({ email, password }) => {
   const user = await User.findOne({ where: { email } });
-
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw HttpError(401, 'Email or password is wrong');
   }
-
   const payload = { id: user.id };
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
-
   await User.update({ token }, { where: { id: user.id } });
-
   return {
     token,
     user: {
@@ -61,14 +54,11 @@ export const getFollowingByUserId = async userId => {
     where: { followerId: userId },
     attributes: ['followingId'],
   });
-
   const followingIds = followingLinks.map(link => link.followingId);
-
   const following = await User.findAll({
     where: { id: followingIds },
     attributes: ['id', 'name', 'avatarURL'],
   });
-
   const result = await Promise.all(
     following.map(async user => {
       const recipes = await Recipe.findAll({
@@ -77,11 +67,9 @@ export const getFollowingByUserId = async userId => {
         limit: 4,
         order: [['createdAt', 'DESC']],
       });
-
       const totalRecipes = await Recipe.count({
         where: { ownerId: user.id },
       });
-
       return {
         ...user.toJSON(),
         recipes,
@@ -89,7 +77,6 @@ export const getFollowingByUserId = async userId => {
       };
     })
   );
-
   return result;
 };
 
@@ -98,14 +85,11 @@ export const getFollowersByUserId = async userId => {
     where: { followingId: userId },
     attributes: ['followerId'],
   });
-
   const followerIds = followersLinks.map(link => link.followerId);
-
   const followers = await User.findAll({
     where: { id: followerIds },
     attributes: ['id', 'name', 'avatarURL'],
   });
-
   const result = await Promise.all(
     followers.map(async follower => {
       const recipes = await Recipe.findAll({
@@ -114,11 +98,9 @@ export const getFollowersByUserId = async userId => {
         limit: 4,
         order: [['createdAt', 'DESC']],
       });
-
       const totalRecipes = await Recipe.count({
         where: { ownerId: follower.id },
       });
-
       return {
         ...follower.toJSON(),
         recipes,
@@ -126,8 +108,23 @@ export const getFollowersByUserId = async userId => {
       };
     })
   );
-
   return result;
+};
+
+export const followUser = async (followerId, followingId) => {
+  if (followerId === followingId) {
+    throw HttpError(400, 'You cannot follow yourself');
+  }
+  const existing = await Follow.findOne({ where: { followerId, followingId } });
+  if (existing) {
+    throw HttpError(400, 'Already following this user');
+  }
+  const userToFollow = await User.findByPk(followingId);
+  if (!userToFollow) {
+    throw HttpError(404, 'User to follow not found');
+  }
+  await Follow.create({ followerId, followingId });
+  return { message: 'Successfully followed the user' };
 };
 
 export const modifyUserAvatar = async (id, avatarURL) => {

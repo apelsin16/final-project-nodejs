@@ -25,4 +25,6 @@ router.post('/logout', auth, userControllers.logout);
 
 router.get('/current', auth, userControllers.getCurrent);
 
+router.post('/:id/follow', auth, userControllers.followUserController);
+
 export default router;
