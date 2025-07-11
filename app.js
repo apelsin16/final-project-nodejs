@@ -1,6 +1,10 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import * as models from './db/models/index.js';
+const { sequelize } = models;
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+import recipesSearchRouter from './routes/recipesSearchRouter.js';
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -8,7 +12,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import sequelize from './db/sequelize.js';
+
 
 // import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
@@ -31,6 +35,7 @@ app.use(cors());
 app.use(express.json());
 
 // app.use("/api/contacts", contactsRouter);
+app.use('/api/recipes/search', recipesSearchRouter);
 app.use("/api/auth", authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/recipes', recipesRouter);

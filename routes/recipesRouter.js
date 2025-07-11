@@ -14,10 +14,10 @@ const recipesRouter = express.Router();
 recipesRouter.get('/categories', recipesController.getCategories);
 
 // GET /api/recipes/areas - получить список всех регионов (публичный ендпоинт)
-recipesRouter.get('/areas', recipesController.getAreas);
+ recipesRouter.get('/areas', recipesController.getAreas);
 
-// Применяем auth middleware к приватным роутам
-recipesRouter.use(auth);
+ // Применяем auth middleware к приватным роутам
+// recipesRouter.use(auth);
 
 recipesRouter.get("/own", ctrlWrapper(recipesController.getOwnRecipes));
 
