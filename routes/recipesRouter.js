@@ -2,10 +2,11 @@ import express from "express";
 import recipesController from "../controllers/recipesControllers.js";
 import ctrlWrapper from "../helpers/controllerWrapper.js";
 import { auth } from "../middlewares/auth.js";
-import { validateQuery, validateParams } from "../middlewares/validation.js";
+import { validateQuery, validateParams, validateBody } from "../middlewares/validation.js";
 import {
   getFavoritesQuerySchema,
   recipeIdParamsSchema,
+  createRecipeSchema,
 } from "../schemas/recipesSchemas.js";
 
 const recipesRouter = express.Router();
@@ -43,5 +44,8 @@ recipesRouter.delete(
   validateParams(recipeIdParamsSchema),
   ctrlWrapper(recipesController.removeFavoriteRecipe)
 );
+
+// POST /api/recipes - створити новий рецепт
+recipesRouter.post('/', validateBody(createRecipeSchema), recipesController.createRecipe);
 
 export default recipesRouter;
