@@ -2,8 +2,46 @@ import Favorite from "../db/models/Favorite.js";
 import Recipe from "../db/models/Recipe.js";
 import Area from '../db/models/Area.js';
 import Category from '../db/models/Category.js';
+import Ingredient from '../db/models/Ingredient.js';
 import HttpError from "../helpers/HttpError.js";
 import User from "../db/models/User.js";
+import { sequelize } from "../db/models/index.js";
+
+export const getRecipeById = async (recipeId) => {
+    const recipe = await Recipe.findByPk(recipeId, {
+        include: [
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'email', 'avatarURL'],
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
+        ],
+    });
+
+    if (!recipe) {
+        throw HttpError(404, 'Recipe not found');
+    }
+
+    return recipe;
+};
 
 export const getOwnRecipes = async (userId) => {
   const recipes = await Recipe.findAll({
@@ -114,4 +152,49 @@ export const getCategories = async () => {
     });
 
     return categories;
+};
+
+export const getPopularRecipes = async ({ limit = 10 }) => {
+    // Отримуємо рецепти з кількістю додавань в улюблені
+    const recipes = await Recipe.findAll({
+        attributes: {
+            include: [
+                [
+                    sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM favorites
+                        WHERE favorites."recipeId" = "Recipe"."id"
+                    )`),
+                    'favorites_count'
+                ]
+            ]
+        },
+        include: [
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'avatarURL']
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name']
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name']
+            }
+        ],
+        order: [
+            [sequelize.literal('favorites_count'), 'DESC'],
+            ['createdAt', 'DESC']
+        ],
+        limit: parseInt(limit),
+        subQuery: false
+    });
+
+    return {
+        recipes: recipes || [],
+    };
 };

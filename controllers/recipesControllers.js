@@ -3,6 +3,18 @@ import { Recipe, User, Favorite } from '../db/models/index.js';
 import HttpError from '../helpers/HttpError.js';
 import * as recipesServices from '../services/recipesServices.js';
 
+const getRecipeById = async (req, res, next) => {
+    try {
+        const { recipeId } = req.params;
+
+        const recipe = await recipesServices.getRecipeById(recipeId);
+
+        res.status(200).json(recipe);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getFavoriteRecipes = async (req, res, next) => {
     const { page = 1, limit = 9 } = req.query;
 
@@ -88,12 +100,24 @@ const getCategories = async (req, res, next) => {
     res.status(200).json(categories);
 };
 
+const getPopularRecipes = async (req, res, next) => {
+    const { limit = 4 } = req.query;
+
+    const result = await recipesServices.getPopularRecipes({ limit });
+
+    res.status(200).json({
+        recipes: result.recipes,
+    });
+};
+
 export default {
+    getRecipeById: ctrlWrapper(getRecipeById),
     getFavoriteRecipes: ctrlWrapper(getFavoriteRecipes),
     removeFavoriteRecipe: ctrlWrapper(removeFavoriteRecipe),
     getOwnRecipes: ctrlWrapper(getOwnRecipes),
     deleteOwnRecipe: ctrlWrapper(deleteOwnRecipe),
     addToFavorites: ctrlWrapper(addToFavorites),
     getCategories: ctrlWrapper(getCategories),
-    getAreas: ctrlWrapper(getAreas)
+    getAreas: ctrlWrapper(getAreas),
+    getPopularRecipes: ctrlWrapper(getPopularRecipes)
 };
