@@ -24,5 +24,6 @@ router.get('/followers', auth, userControllers.getFollowersController);
 router.post('/logout', auth, userControllers.logout);
 
 router.get('/current', auth, userControllers.getCurrent);
+router.get('/:id/details', auth, userControllers.getUserDetails);
 
 export default router;
