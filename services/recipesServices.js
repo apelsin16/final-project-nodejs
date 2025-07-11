@@ -1,13 +1,14 @@
-import Favorite from "../db/models/Favorite.js";
-import Recipe from "../db/models/Recipe.js";
+import Favorite from '../db/models/Favorite.js';
+import Recipe from '../db/models/Recipe.js';
 import Area from '../db/models/Area.js';
 import Category from '../db/models/Category.js';
 import Ingredient from '../db/models/Ingredient.js';
-import HttpError from "../helpers/HttpError.js";
-import User from "../db/models/User.js";
-import { sequelize } from "../db/models/index.js";
+import RecipeIngredient from '../db/models/RecipeIngredient.js';
+import HttpError from '../helpers/HttpError.js';
+import User from '../db/models/User.js';
+import { sequelize } from '../db/models/index.js';
 
-export const getRecipeById = async (recipeId) => {
+export const getRecipeById = async recipeId => {
     const recipe = await Recipe.findByPk(recipeId, {
         include: [
             {
@@ -37,167 +38,237 @@ export const getRecipeById = async (recipeId) => {
     });
 
     if (!recipe) {
-        throw HttpError(404, 'Recipe not found');
+        throw HttpError(404, 'Recipe not found. Please check the recipe ID and try again.');
     }
 
     return recipe;
 };
 
-export const getOwnRecipes = async (userId) => {
-  const recipes = await Recipe.findAll({
-    where: { ownerId: userId },
-    order: [["createdAt", "DESC"]],
-  });
-  return recipes;
+export const getOwnRecipes = async (userId, { page = 1, limit = 9 }) => {
+    const offset = (page - 1) * limit;
+
+    // Получаем общее количество собственных рецептов
+    const totalCount = await Recipe.count({
+        where: { ownerId: userId },
+    });
+
+    if (totalCount === 0) {
+        return {
+            recipes: [],
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: 0,
+                totalRecipes: 0,
+                recipesPerPage: parseInt(limit),
+                hasNextPage: false,
+                hasPrevPage: false,
+            },
+        };
+    }
+
+    // Получаем собственные рецепты с полной информацией и пагинацией
+    const recipes = await Recipe.findAll({
+        where: { ownerId: userId },
+        include: [
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
+        ],
+        order: [['createdAt', 'DESC']],
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+        recipes: recipes || [],
+        pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalRecipes: totalCount,
+            recipesPerPage: parseInt(limit),
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+        },
+    };
 };
 
-// Видалити власний рецепт
 export const deleteOwnRecipe = async (recipeId, userId) => {
-  const recipe = await Recipe.findOne({
-    where: { id: recipeId, ownerId: userId },
-  });
+    const recipe = await Recipe.findOne({
+        where: { id: recipeId, ownerId: userId },
+    });
 
-  if (!recipe) return null;
+    if (!recipe) return null;
 
-  await recipe.destroy();
-  return recipe;
+    await recipe.destroy();
+    return recipe;
 };
 
-// Додати рецепт до улюблених
 export const addToFavorites = async (userId, recipeId) => {
-  const recipe = await Recipe.findByPk(recipeId);
-  if (!recipe) return { error: "RecipeNotFound" };
+    const recipe = await Recipe.findByPk(recipeId);
+    if (!recipe) {
+        throw HttpError(404, 'Recipe not found. Please check the recipe ID and try again.');
+    }
 
-  const user = await User.findByPk(userId);
-  if (!user) return { error: "UserNotFound" };
+    const user = await User.findByPk(userId);
+    if (!user) {
+        throw HttpError(401, 'Authentication required. Please log in and try again.');
+    }
 
-  const favorites = await user.getFavoriteRecipes({ where: { id: recipeId } });
-  if (favorites.length > 0) return { error: "AlreadyInFavorites" };
+    const existingFavorite = await Favorite.findOne({
+        where: { userId, recipeId },
+    });
+    if (existingFavorite) {
+        throw HttpError(
+            409,
+            'Recipe already in favorites. This recipe is already saved to your favorites list.'
+        );
+    }
 
-  await user.addFavoriteRecipe(recipe);
-  return { success: true };
+    await Favorite.create({ userId, recipeId });
 };
 
 export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
-  const offset = (page - 1) * limit;
-
-  // Получаем общее количество избранных рецептов
-  const totalCount = await Favorite.count({
-    where: { userId: user.id },
-  });
-
-  // Получаем избранные рецепты с пагинацией
-  const favoriteRecipes = await Recipe.findAll({
-    attributes: ["id", "title", "thumb", "description"],
-    include: [
-      {
-        model: Favorite,
-        as: "favoriteEntries",
+    const offset = (page - 1) * limit;
+    const totalCount = await Favorite.count({
         where: { userId: user.id },
-        attributes: [],
-      },
-    ],
-    limit: parseInt(limit),
-    offset: parseInt(offset),
-  });
+    });
 
-  const totalPages = Math.ceil(totalCount / limit);
+    const favoriteRecipes = await Recipe.findAll({
+        attributes: ['id', 'title', 'thumb', 'description'],
+        include: [
+            {
+                model: Favorite,
+                as: 'favoriteEntries',
+                where: { userId: user.id },
+                attributes: [],
+            },
+        ],
+        limit: parseInt(limit),
+        offset: parseInt(offset),
+    });
 
-  return {
-    recipes: favoriteRecipes || [],
-    pagination: {
-      currentPage: parseInt(page),
-      totalPages,
-      totalRecipes: totalCount,
-      recipesPerPage: parseInt(limit),
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    },
-  };
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+        recipes: favoriteRecipes || [],
+        pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalRecipes: totalCount,
+            recipesPerPage: parseInt(limit),
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+        },
+    };
 };
 
 export const removeFavoriteRecipe = async (user, recipeId) => {
-  console.log(user.id);
-  console.log(recipeId);
-  const favorite = await Favorite.findOne({
-    where: {
-      userId: user.id,
-      recipeId: recipeId,
-    },
-  });
-  console.log(favorite);
-
-  if (!favorite) {
-    throw HttpError(404, "Recipe not found in favorites");
-  }
-
-  await favorite.destroy();
-
-  return { message: "Recipe removed from favorites", recepy: favorite };
-};
-
-export const getAreas = async () => {
-    const areas = await Area.findAll({
-        attributes: ['id', 'name'],
-        order: [['name', 'ASC']],
+    const favorite = await Favorite.findOne({
+        where: {
+            userId: user.id,
+            recipeId: recipeId,
+        },
     });
 
-    return areas;
+    if (!favorite) {
+        throw HttpError(
+            404,
+            'Recipe not found in favorites. Please check if this recipe was added to your favorites list.'
+        );
+    }
+
+    await favorite.destroy();
+
+    return {
+        success: true,
+        message:
+            'Recipe removed from favorites successfully. The recipe has been removed from your favorites list.',
+        recipe: favorite,
+    };
 };
-
-export const getCategories = async () => {
-    const categories = await Category.findAll({
-        attributes: ['id', 'name'],
-        order: [['name', 'ASC']],
-    });
-
-    return categories;
-};
-
 
 export const createRecipe = async (user, recipeData) => {
-  // Validate that category exists
-  const category = await Category.findByPk(recipeData.categoryId);
-  if (!category) {
-      throw HttpError(400, 'Category not found');
-  }
+    const { ingredients, ...recipeFields } = recipeData;
 
-  // Validate that area exists if provided
-  if (recipeData.areaId) {
-      const area = await Area.findByPk(recipeData.areaId);
-      if (!area) {
-          throw HttpError(400, 'Area not found');
-      }
-  }
+    const category = await Category.findByPk(recipeFields.categoryId);
+    if (!category) {
+        throw HttpError(400, 'Category not found. Please select a valid category.');
+    }
 
-  // Create the recipe with the user as owner
-  const newRecipe = await Recipe.create({
-      ...recipeData,
-      ownerId: user.id,
-  });
+    if (recipeFields.areaId) {
+        const area = await Area.findByPk(recipeFields.areaId);
+        if (!area) {
+            throw HttpError(400, 'Area not found. Please select a valid area.');
+        }
+    }
 
-  // Fetch the created recipe with associations
-  const createdRecipe = await Recipe.findByPk(newRecipe.id, {
-      include: [
-          {
-              model: Category,
-              as: 'category',
-              attributes: ['id', 'name'],
-          },
-          {
-              model: Area,
-              as: 'area',
-              attributes: ['id', 'name'],
-          },
-      ],
-  });
+    const ingredientIds = ingredients.map(ing => ing.ingredientId);
+    const existingIngredients = await Ingredient.findAll({
+        where: { id: ingredientIds },
+        attributes: ['id'],
+    });
 
-  return createdRecipe;
+    if (existingIngredients.length !== ingredientIds.length) {
+        throw HttpError(400, 'One or more ingredients not found. Please check your ingredient selection.');
+    }
+
+    const newRecipe = await Recipe.create({
+        ...recipeFields,
+        ownerId: user.id,
+    });
+
+    const recipeIngredients = ingredients.map(ing => ({
+        recipeId: newRecipe.id,
+        ingredientId: ing.ingredientId,
+        measure: ing.measure,
+    }));
+
+    await RecipeIngredient.bulkCreate(recipeIngredients);
+
+    const createdRecipe = await Recipe.findByPk(newRecipe.id, {
+        include: [
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
+        ],
+    });
+
+    return createdRecipe;
 };
 
-
 export const getPopularRecipes = async ({ limit = 10 }) => {
-    // Отримуємо рецепти з кількістю додавань в улюблені
     const recipes = await Recipe.findAll({
         attributes: {
             include: [
@@ -207,37 +278,86 @@ export const getPopularRecipes = async ({ limit = 10 }) => {
                         FROM favorites
                         WHERE favorites."recipeId" = "Recipe"."id"
                     )`),
-                    'favorites_count'
-                ]
-            ]
+                    'favorites_count',
+                ],
+            ],
         },
         include: [
             {
                 model: User,
                 as: 'owner',
-                attributes: ['id', 'name', 'avatarURL']
+                attributes: ['id', 'name', 'avatarURL'],
             },
             {
                 model: Category,
                 as: 'category',
-                attributes: ['id', 'name']
+                attributes: ['id', 'name'],
             },
             {
                 model: Area,
                 as: 'area',
-                attributes: ['id', 'name']
-            }
+                attributes: ['id', 'name'],
+            },
         ],
         order: [
             [sequelize.literal('favorites_count'), 'DESC'],
-            ['createdAt', 'DESC']
+            ['createdAt', 'DESC'],
         ],
         limit: parseInt(limit),
-        subQuery: false
+        subQuery: false,
+    });
+
+    return recipes || [];
+};
+
+export const getFilteredRecipes = async ({ category, area, ingredient, page = 1, limit = 12 }) => {
+    const offset = (page - 1) * limit;
+
+    const where = {};
+    const include = [];
+
+    if (category) {
+        include.push({
+            model: Category,
+            as: 'category',
+            where: { name: category },
+            required: true,
+        });
+    }
+
+    if (area) {
+        include.push({
+            model: Area,
+            as: 'area',
+            where: { name: area },
+            required: true,
+        });
+    }
+
+    if (ingredient) {
+        include.push({
+            model: Ingredient,
+            as: 'ingredients',
+            where: { name: ingredient },
+            through: { attributes: [] },
+            required: true,
+        });
+    }
+
+    const { rows, count } = await Recipe.findAndCountAll({
+        where,
+        include,
+        offset,
+        limit,
     });
 
     return {
-        recipes: recipes || [],
+        recipes: rows,
+        pagination: {
+            total: count,
+            page,
+            limit,
+            totalPages: Math.ceil(count / limit),
+        },
     };
 };
-

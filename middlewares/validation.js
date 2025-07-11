@@ -44,3 +44,16 @@ export const validateQuery = schema => {
         }
     };
 };
+
+export const handleMulterError = (err, req, res, next) => {
+    if (err) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return next(HttpError(400, 'File too large. Please upload an image smaller than 5MB.'));
+        }
+        if (err.message.includes('Invalid file type')) {
+            return next(HttpError(400, err.message));
+        }
+        return next(HttpError(400, 'File upload error. Please try again with a valid image file.'));
+    }
+    next();
+};

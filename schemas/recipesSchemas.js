@@ -6,9 +6,25 @@ export const getFavoritesQuerySchema = Joi.object({
     limit: Joi.number().integer().min(1).max(100).default(9),
 });
 
+export const getPopularRecipesQuerySchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(100).default(4).messages({
+        'number.base': 'Limit must be a number. Please provide a valid number.',
+        'number.integer': 'Limit must be an integer. Please provide a whole number.',
+        'number.min': 'Limit must be at least 1. Please provide a value greater than 0.',
+        'number.max': 'Limit cannot exceed 100. Please provide a smaller value.',
+    }),
+});
+
 export const recipeIdParamsSchema = Joi.object({
     recipeId: Joi.string().pattern(UUID_REGEX).required().messages({
-        'string.pattern.base': 'Invalid recipe ID format',
+        'string.pattern.base': 'Invalid recipe ID format. Please provide a valid UUID.',
+        'any.required': 'Recipe ID is required',
+    }),
+});
+
+export const idParamsSchema = Joi.object({
+    id: Joi.string().pattern(UUID_REGEX).required().messages({
+        'string.pattern.base': 'Invalid recipe ID format. Please provide a valid UUID.',
         'any.required': 'Recipe ID is required',
     }),
 });
@@ -48,4 +64,25 @@ export const createRecipeSchema = Joi.object({
     areaId: Joi.string().pattern(UUID_REGEX).optional().messages({
         'string.pattern.base': 'Invalid area ID format',
     }),
+    ingredients: Joi.array()
+        .items(
+            Joi.object({
+                ingredientId: Joi.string().pattern(UUID_REGEX).required().messages({
+                    'string.pattern.base': 'Invalid ingredient ID format',
+                    'any.required': 'Ingredient ID is required',
+                }),
+                measure: Joi.string().min(1).max(100).required().messages({
+                    'string.empty': 'Measure cannot be empty',
+                    'string.min': 'Measure must be at least 1 character long',
+                    'string.max': 'Measure cannot exceed 100 characters',
+                    'any.required': 'Measure is required',
+                }),
+            })
+        )
+        .min(1)
+        .required()
+        .messages({
+            'array.min': 'At least one ingredient is required. Please add ingredients to your recipe.',
+            'any.required': 'Ingredients are required. Please add at least one ingredient.',
+        }),
 });

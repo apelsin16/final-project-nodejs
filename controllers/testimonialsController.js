@@ -1,10 +1,11 @@
-import Testimonial from '../db/models/Testimonial.js';
+import { getAllTestimonials as getTestimonialsService } from '../services/testimonialsService.js';
+import ctrlWrapper from '../helpers/controllerWrapper.js';
 
-export const getAllTestimonials = async (req, res) => {
-  try {
-    const testimonials = await Testimonial.findAll({ order: [['id', 'DESC']] });
-    res.status(200).json(testimonials);
-  } catch (error) {
-    res.status(500).json({ message: 'Помилка сервера', error: error.message });
-  }
+const getAllTestimonials = async (req, res) => {
+    const testimonials = await getTestimonialsService();
+    res.status(200).json({ testimonials });
+};
+
+export default {
+    getAllTestimonials: ctrlWrapper(getAllTestimonials),
 };

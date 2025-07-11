@@ -3,16 +3,29 @@ import { Recipe, User, Favorite } from '../db/models/index.js';
 import HttpError from '../helpers/HttpError.js';
 import * as recipesServices from '../services/recipesServices.js';
 
-const getRecipeById = async (req, res, next) => {
-    try {
-        const { recipeId } = req.params;
+const getAllRecipes = async (req, res) => {
+    const { category, area, ingredient, page, limit } = req.query;
 
-        const recipe = await recipesServices.getRecipeById(recipeId);
+    const result = await recipesServices.getFilteredRecipes({
+        category,
+        area,
+        ingredient,
+        page: parseInt(page),
+        limit: parseInt(limit),
+    });
 
-        res.status(200).json(recipe);
-    } catch (error) {
-        next(error);
-    }
+    res.status(200).json({
+        success: true,
+        data: result.recipes,
+        pagination: result.pagination,
+        filters: { category, area, ingredient },
+    });
+};
+
+const getRecipeById = async (req, res) => {
+    const { recipeId } = req.params;
+    const recipe = await recipesServices.getRecipeById(recipeId);
+    res.status(200).json(recipe);
 };
 
 const getFavoriteRecipes = async (req, res, next) => {
@@ -35,107 +48,76 @@ const removeFavoriteRecipe = async (req, res) => {
 };
 
 const getOwnRecipes = async (req, res) => {
+    const { page = 1, limit = 9 } = req.query;
     const userId = req.user.id;
 
-    const recipes = await Recipe.findAll({
-        where: { ownerId: userId },
-        order: [['createdAt', 'DESC']],
-    });
+    const result = await recipesServices.getOwnRecipes(userId, { page, limit });
 
-    res.status(200).json(recipes);
+    res.status(200).json({
+        success: true,
+        recipes: result.recipes,
+        pagination: result.pagination,
+    });
 };
 
-const deleteOwnRecipe = async (req, res, next) => {
+const deleteOwnRecipe = async (req, res) => {
     const recipeId = req.params.id;
     const userId = req.user.id;
 
-    const recipe = await Recipe.findOne({
-        where: { id: recipeId, ownerId: userId },
-    });
+    const deletedRecipe = await recipesServices.deleteOwnRecipe(recipeId, userId);
 
-    if (!recipe) {
-        throw HttpError(404, 'Recipe not found or access denied');
+    if (!deletedRecipe) {
+        throw HttpError(
+            404,
+            'Recipe not found. Please check the recipe ID or make sure you own this recipe.'
+        );
     }
 
-    await recipe.destroy();
-
-    res.status(200).json({ message: 'Recipe deleted successfully' });
+    res.status(200).json({
+        success: true,
+        message: 'Recipe deleted successfully. Your recipe has been permanently removed.',
+    });
 };
 
-const addToFavorites = async (req, res, next) => {
+const addToFavorites = async (req, res) => {
     const userId = req.user.id;
     const recipeId = req.params.id;
 
-    const recipe = await Recipe.findByPk(recipeId);
-    if (!recipe) {
-        throw HttpError(404, 'Recipe not found');
-    }
+    await recipesServices.addToFavorites(userId, recipeId);
 
-    const user = await User.findByPk(userId);
-    if (!user) {
-        throw HttpError(401, 'User not found');
-    }
-
-    const existingFavorite = await Favorite.findOne({
-        where: { userId, recipeId },
+    res.status(201).json({
+        success: true,
+        message: 'Recipe added to favorites successfully. You can find it in your favorites list.',
     });
-    if (existingFavorite) {
-        throw HttpError(400, 'Recipe already in favorites');
-    }
-
-    await Favorite.create({ userId, recipeId });
-
-    res.status(201).json({ message: 'Recipe added to favorites' });
-};
-
-const getAreas = async (req, res, next) => {
-    const areas = await recipesServices.getAreas();
-
-    res.status(200).json(areas);
-};
-
-const getCategories = async (req, res, next) => {
-    const categories = await recipesServices.getCategories();
-
-    res.status(200).json(categories);
 };
 
 export const createRecipe = async (req, res, next) => {
-    try {
-        const recipeData = req.body;
+    const recipeData = req.body;
 
-        const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
+    const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
 
-        res.status(201).json({
-            message: 'Recipe created successfully',
-            recipe: newRecipe,
-        });
-    } catch (error) {
-        next(error);
-    }
+    res.status(201).json({
+        message: 'Recipe created successfully',
+        recipe: newRecipe,
+    });
+};
 
 const getPopularRecipes = async (req, res, next) => {
     const { limit = 4 } = req.query;
 
-    const result = await recipesServices.getPopularRecipes({ limit });
+    const popularRecipes = await recipesServices.getPopularRecipes({ limit });
 
-    res.status(200).json({
-        recipes: result.recipes,
-    });
+    res.status(200).json({ popularRecipes });
 };
 
 export default {
+    getAllRecipes: ctrlWrapper(getAllRecipes),
     getRecipeById: ctrlWrapper(getRecipeById),
     getFavoriteRecipes: ctrlWrapper(getFavoriteRecipes),
     removeFavoriteRecipe: ctrlWrapper(removeFavoriteRecipe),
     getOwnRecipes: ctrlWrapper(getOwnRecipes),
     deleteOwnRecipe: ctrlWrapper(deleteOwnRecipe),
     addToFavorites: ctrlWrapper(addToFavorites),
-    getCategories: ctrlWrapper(getCategories),
-    getAreas: ctrlWrapper(getAreas),
-
     createRecipe: ctrlWrapper(createRecipe),
-
-    getPopularRecipes: ctrlWrapper(getPopularRecipes)
-
+    getPopularRecipes: ctrlWrapper(getPopularRecipes),
 };

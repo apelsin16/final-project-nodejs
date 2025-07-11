@@ -30,18 +30,6 @@ const User = sequelize.define(
             type: DataTypes.STRING,
             allowNull: true,
         },
-        // subscription: {
-        //     type: DataTypes.ENUM('starter', 'pro', 'business'),
-        //     defaultValue: 'starter',
-        // },
-        // verify: {
-        //     type: DataTypes.BOOLEAN,
-        //     defaultValue: false,
-        // },
-        // verificationToken: {
-        //     type: DataTypes.STRING,
-        //     allowNull: true,
-        // },
     },
     {
         timestamps: true,
