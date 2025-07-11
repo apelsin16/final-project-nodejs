@@ -5,6 +5,7 @@ import Category from '../db/models/Category.js';
 import Ingredient from '../db/models/Ingredient.js';
 import HttpError from "../helpers/HttpError.js";
 import User from "../db/models/User.js";
+import { sequelize } from "../db/models/index.js";
 
 export const getRecipeById = async (recipeId) => {
     const recipe = await Recipe.findByPk(recipeId, {
@@ -151,4 +152,49 @@ export const getCategories = async () => {
     });
 
     return categories;
+};
+
+export const getPopularRecipes = async ({ limit = 10 }) => {
+    // Отримуємо рецепти з кількістю додавань в улюблені
+    const recipes = await Recipe.findAll({
+        attributes: {
+            include: [
+                [
+                    sequelize.literal(`(
+                        SELECT COUNT(*)
+                        FROM favorites
+                        WHERE favorites."recipeId" = "Recipe"."id"
+                    )`),
+                    'favorites_count'
+                ]
+            ]
+        },
+        include: [
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'avatarURL']
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name']
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name']
+            }
+        ],
+        order: [
+            [sequelize.literal('favorites_count'), 'DESC'],
+            ['createdAt', 'DESC']
+        ],
+        limit: parseInt(limit),
+        subQuery: false
+    });
+
+    return {
+        recipes: recipes || [],
+    };
 };

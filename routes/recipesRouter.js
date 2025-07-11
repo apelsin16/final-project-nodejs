@@ -10,6 +10,9 @@ import {
 
 const recipesRouter = express.Router();
 
+// GET /api/recipes/popular - отримати популярні рецепти (публичний)
+recipesRouter.get('/popular', recipesController.getPopularRecipes);
+
 // GET /api/recipes/categories - получить список всех категорий (публичный ендпоинт)
 recipesRouter.get('/categories', recipesController.getCategories);
 
