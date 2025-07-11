@@ -100,6 +100,20 @@ const getCategories = async (req, res, next) => {
     res.status(200).json(categories);
 };
 
+export const createRecipe = async (req, res, next) => {
+    try {
+        const recipeData = req.body;
+
+        const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
+
+        res.status(201).json({
+            message: 'Recipe created successfully',
+            recipe: newRecipe,
+        });
+    } catch (error) {
+        next(error);
+    }
+
 const getPopularRecipes = async (req, res, next) => {
     const { limit = 4 } = req.query;
 
@@ -119,5 +133,9 @@ export default {
     addToFavorites: ctrlWrapper(addToFavorites),
     getCategories: ctrlWrapper(getCategories),
     getAreas: ctrlWrapper(getAreas),
+
+    createRecipe: ctrlWrapper(createRecipe),
+
     getPopularRecipes: ctrlWrapper(getPopularRecipes)
+
 };
