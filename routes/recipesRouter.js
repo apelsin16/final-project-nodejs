@@ -17,13 +17,15 @@ recipesRouter.get('/popular', recipesController.getPopularRecipes);
 recipesRouter.get('/categories', recipesController.getCategories);
 
 // GET /api/recipes/areas - получить список всех регионов (публичный ендпоинт)
-recipesRouter.get('/areas', recipesController.getAreas);
+ recipesRouter.get('/areas', recipesController.getAreas);
+
 
 // Публічний роут для отримання детальної інформації про рецепт за id
 recipesRouter.get('/:recipeId', recipesController.getRecipeById);
 
 // Применяем auth middleware к приватным роутам
 recipesRouter.use(auth);
+
 
 recipesRouter.get("/own", ctrlWrapper(recipesController.getOwnRecipes));
 

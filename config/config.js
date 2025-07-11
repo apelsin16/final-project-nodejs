@@ -20,6 +20,11 @@ const common = {
             : {},
 };
 
+
+
+console.log("🔍 DB_USER from .env:", process.env.DB_USER);
+
+
 export default {
     development: { ...common },
     test: { ...common },
