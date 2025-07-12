@@ -7,7 +7,7 @@ const swaggerOptions = {
         openapi: '3.0.0',
         info: {
             title: 'Foodies API',
-            version: '1.0.0',
+            version: '1.0.1',
             description: 'API для додатка Foodies - платформа для рецептів та кулінарії',
             license: {
                 name: 'Apache 2.0',
