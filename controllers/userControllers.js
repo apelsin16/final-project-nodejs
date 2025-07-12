@@ -80,8 +80,17 @@ const getCurrentDetailed = async (req, res) => {
 
 const getUserByIdController = async (req, res) => {
     const { userId } = req.params;
-    const result = await getUserById(userId);
-    res.status(200).json(result);
+    const requesterId = req.user.id;
+
+    if (userId === requesterId) {
+        // Если пользователь запрашивает сам себя — возвращаем расширенную инфу
+        const result = await getCurrentUserDetailed(req.user);
+        res.status(200).json({ ...result, requestedBy: requesterId });
+    } else {
+        // Если другой пользователь — стандартная инфа
+        const result = await getUserById(userId);
+        res.status(200).json({ ...result, requestedBy: requesterId });
+    }
 };
 
 const followUserController = async (req, res) => {
