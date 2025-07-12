@@ -23,7 +23,9 @@ tags:
     - name: Testimonials
       description: Отзывы пользователей
 servers:
-    - url: <http://localhost:3000>
+    - url: https://foodies-j2jj.onrender.com/
+      description: Production server
+    - url: http://localhost:3000/
       description: Development server
 paths:
     /api/users/signup:
