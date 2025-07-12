@@ -247,6 +247,8 @@ router.patch(
  *     tags:
  *       - Users
  *     summary: Отримати користувача за ID
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -257,6 +259,8 @@ router.patch(
  *     responses:
  *       200:
  *         description: Дані користувача
+ *       401:
+ *         description: Не авторизований
  */
 router.get('/:userId', validateParams(userIdSchema), userControllers.getUserByIdController);
 
