@@ -6,7 +6,8 @@
         "start": "node ./app.js",
         "dev": "nodemon ./app.js",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-        "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
+        "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+        "build": "echo 'No build step required'"
     },
     "dependencies": {
         "bcryptjs": "^3.0.2",
