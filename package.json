@@ -6,10 +6,7 @@
         "start": "node ./app.js",
         "dev": "nodemon ./app.js",
         "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-        "build": "npm run build-docs",
-        "build-docs": "redocly bundle docs/openapi.yaml --ext json -o docs/swagger.json",
-        "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-        "preview-docs": "redocly preview-docs"
+        "db:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
     },
     "dependencies": {
         "bcryptjs": "^3.0.2",
