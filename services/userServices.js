@@ -184,7 +184,6 @@ export const getFollowersByUserId = async (userId, page = 1, limit = 9) => {
     followers: result,
     pagination,
   };
-
 };
 
 export const modifyUserAvatar = async (id, avatarURL) => {
@@ -336,5 +335,62 @@ export const getUserById = async userId => {
       ownRecipesCount,
       followersCount,
     },
+  };
+};
+
+export const getOtherFollowersByUserId = async (
+  userId,
+  page = 1,
+  limit = 9
+) => {
+  const offset = (page - 1) * limit;
+
+  const followersLinks = await Follow.findAll({
+    where: { followingId: userId },
+    attributes: ['followerId'],
+  });
+
+  const followerIds = followersLinks.map(link => link.followerId);
+  const totalFollowers = followerIds.length;
+
+  const followers = await User.findAll({
+    where: { id: followerIds },
+    attributes: ['id', 'name', 'avatarURL'],
+    limit,
+    offset,
+  });
+
+  const result = await Promise.all(
+    followers.map(async follower => {
+      const recipes = await Recipe.findAll({
+        where: { ownerId: follower.id },
+        attributes: ['id', 'title', 'thumb'],
+        limit: 4,
+        order: [['createdAt', 'DESC']],
+      });
+
+      const totalRecipes = await Recipe.count({
+        where: { ownerId: follower.id },
+      });
+
+      return {
+        ...follower.toJSON(),
+        recipes,
+        totalRecipes,
+      };
+    })
+  );
+
+  const pagination = {
+    currentPage: page,
+    totalPages: Math.ceil(totalFollowers / limit),
+    totalFollowers,
+    followersPerPage: limit,
+    hasNextPage: offset + limit < totalFollowers,
+  };
+
+  return {
+    followers: result,
+    pagination,
   };
 };

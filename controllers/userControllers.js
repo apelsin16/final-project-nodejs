@@ -9,6 +9,7 @@ import {
   getUserById,
   followUser,
   unfollowUser,
+  getOtherFollowersByUserId,
 } from '../services/userServices.js';
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 import HttpError from '../helpers/HttpError.js';
@@ -55,10 +56,10 @@ const getFollowersController = async (req, res) => {
 };
 
 export const getFollowersByUserIdController = async (req, res) => {
-    const { userId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const result = await getFollowersByUserId(userId, { page, limit });
-    res.json(result);
+  const { userId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const result = await getFollowersByUserId(userId, { page, limit });
+  res.json(result);
 };
 
 const updateUserAvatarController = async (req, res) => {
@@ -99,16 +100,16 @@ const getCurrentDetailed = async (req, res) => {
 };
 
 const getUserByIdController = async (req, res) => {
-    const { userId } = req.params;
-    const requesterId = req.user.id;
+  const { userId } = req.params;
+  const requesterId = req.user.id;
 
-    if (userId === requesterId) {
-        const result = await getCurrentUserDetailed(req.user);
-        res.status(200).json({ ...result, requestedBy: requesterId });
-    } else {
-        const result = await getUserById(userId);
-        res.status(200).json({ ...result, requestedBy: requesterId });
-    }
+  if (userId === requesterId) {
+    const result = await getCurrentUserDetailed(req.user);
+    res.status(200).json({ ...result, requestedBy: requesterId });
+  } else {
+    const result = await getUserById(userId);
+    res.status(200).json({ ...result, requestedBy: requesterId });
+  }
 };
 
 const followUserController = async (req, res) => {
@@ -127,17 +128,30 @@ const unfollowUserController = async (req, res) => {
   res.status(200).json(result);
 };
 
+export const getOtherFollowersByUserIdController = async (req, res) => {
+  const { userId } = req.params;
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 9;
+
+  const followersData = await getOtherFollowersByUserId(userId, page, limit);
+
+  res.json(followersData);
+};
+
 export default {
-    getFollowersController: ctrlWrapper(getFollowersController),
-    registerUser: ctrlWrapper(registerUser),
-    login: ctrlWrapper(login),
-    logout: ctrlWrapper(logout),
-    updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
-    getFollowingController: ctrlWrapper(getFollowingController),
-    getCurrent: ctrlWrapper(getCurrent),
-    getCurrentDetailed: ctrlWrapper(getCurrentDetailed),
-    getUserByIdController: ctrlWrapper(getUserByIdController),
-    followUserController: ctrlWrapper(followUserController),
-    unfollowUserController: ctrlWrapper(unfollowUserController),
-    getFollowersByUserIdController: ctrlWrapper(getFollowersByUserIdController),
+  getFollowersController: ctrlWrapper(getFollowersController),
+  registerUser: ctrlWrapper(registerUser),
+  login: ctrlWrapper(login),
+  logout: ctrlWrapper(logout),
+  updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
+  getFollowingController: ctrlWrapper(getFollowingController),
+  getCurrent: ctrlWrapper(getCurrent),
+  getCurrentDetailed: ctrlWrapper(getCurrentDetailed),
+  getUserByIdController: ctrlWrapper(getUserByIdController),
+  followUserController: ctrlWrapper(followUserController),
+  unfollowUserController: ctrlWrapper(unfollowUserController),
+  getFollowersByUserIdController: ctrlWrapper(getFollowersByUserIdController),
+  getOtherFollowersByUserIdController: ctrlWrapper(
+    getOtherFollowersByUserIdController
+  ),
 };

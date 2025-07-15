@@ -1,7 +1,15 @@
 import express from 'express';
 import userControllers from '../controllers/userControllers.js';
-import { validateBody, validateParams, handleMulterError } from '../middlewares/validation.js';
-import { registerSchema, loginSchema, userIdSchema } from '../schemas/authSchemas.js';
+import {
+  validateBody,
+  validateParams,
+  handleMulterError,
+} from '../middlewares/validation.js';
+import {
+  registerSchema,
+  loginSchema,
+  userIdSchema,
+} from '../schemas/authSchemas.js';
 import { authenticate } from '../middlewares/./authenticate.js';
 import { upload } from '../middlewares/upload.js';
 
@@ -43,7 +51,11 @@ const router = express.Router();
  *       400:
  *         description: Помилка валідації
  */
-router.post('/register', validateBody(registerSchema), userControllers.registerUser);
+router.post(
+  '/register',
+  validateBody(registerSchema),
+  userControllers.registerUser
+);
 
 /**
  * @swagger
@@ -171,7 +183,11 @@ router.get('/followers', userControllers.getFollowersController);
  *       200:
  *         description: Успішно підписався
  */
-router.post('/follow/:userId', validateParams(userIdSchema), userControllers.followUserController);
+router.post(
+  '/follow/:userId',
+  validateParams(userIdSchema),
+  userControllers.followUserController
+);
 
 /**
  * @swagger
@@ -193,7 +209,11 @@ router.post('/follow/:userId', validateParams(userIdSchema), userControllers.fol
  *       200:
  *         description: Успішно відписався
  */
-router.delete('/follow/:userId', validateParams(userIdSchema), userControllers.unfollowUserController);
+router.delete(
+  '/follow/:userId',
+  validateParams(userIdSchema),
+  userControllers.unfollowUserController
+);
 
 /**
  * @swagger
@@ -234,10 +254,10 @@ router.post('/logout', userControllers.logout);
  *         description: Аватар оновлено
  */
 router.patch(
-    '/avatars',
-    upload.single('avatar'),
-    handleMulterError,
-    userControllers.updateUserAvatarController
+  '/avatars',
+  upload.single('avatar'),
+  handleMulterError,
+  userControllers.updateUserAvatarController
 );
 
 /**
@@ -262,7 +282,11 @@ router.patch(
  *       401:
  *         description: Не авторизований
  */
-router.get('/:userId', validateParams(userIdSchema), userControllers.getUserByIdController);
+router.get(
+  '/:userId',
+  validateParams(userIdSchema),
+  userControllers.getUserByIdController
+);
 
 /**
  * @swagger
@@ -341,9 +365,9 @@ router.get('/:userId', validateParams(userIdSchema), userControllers.getUserById
  *                       type: boolean
  */
 router.get(
-    '/:userId/followers',
-    validateParams(userIdSchema),
-    userControllers.getFollowersByUserIdController
+  '/:userId/followers',
+  validateParams(userIdSchema),
+  userControllers.getOtherFollowersByUserIdController
 );
 
 export default router;
