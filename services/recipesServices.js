@@ -151,7 +151,6 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
     });
 
     const favoriteRecipes = await Recipe.findAll({
-        attributes: ['id', 'title', 'thumb', 'description'],
         include: [
             {
                 model: Favorite,
@@ -159,7 +158,31 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
                 where: { userId: user.id },
                 attributes: [],
             },
+            {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'avatarURL'],
+            },
+            {
+                model: Category,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Area,
+                as: 'area',
+                attributes: ['id', 'name'],
+            },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
         ],
+        order: [['createdAt', 'DESC']],
         limit: parseInt(limit),
         offset: parseInt(offset),
     });
@@ -298,6 +321,14 @@ export const getPopularRecipes = async ({ limit = 10 }) => {
                 as: 'area',
                 attributes: ['id', 'name'],
             },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
         ],
         order: [
             [sequelize.literal('favorites_count'), 'DESC'],
@@ -337,6 +368,14 @@ export const getRecipesByCategory = async (categoryId, { page = 1, limit = 12 })
                 as: 'area',
                 attributes: ['id', 'name'],
             },
+            {
+                model: Ingredient,
+                as: 'ingredients',
+                attributes: ['id', 'name', 'img', 'desc'],
+                through: {
+                    attributes: ['measure'],
+                },
+            },
         ],
         order: [['createdAt', 'DESC']],
         offset: parseInt(offset),
@@ -366,34 +405,50 @@ export const getFilteredRecipes = async ({ category, area, ingredient, page = 1,
     const offset = (page - 1) * limit;
 
     const where = {};
-    const include = [];
-
-    if (category) {
-        include.push({
+    const include = [
+        {
+            model: User,
+            as: 'owner',
+            attributes: ['id', 'name', 'avatarURL'],
+        },
+        {
             model: Category,
             as: 'category',
-            where: { name: category },
-            required: true,
-        });
+            attributes: ['id', 'name'],
+        },
+        {
+            model: Area,
+            as: 'area',
+            attributes: ['id', 'name'],
+        },
+        {
+            model: Ingredient,
+            as: 'ingredients',
+            attributes: ['id', 'name', 'img', 'desc'],
+            through: {
+                attributes: ['measure'],
+            },
+        },
+    ];
+
+    // Додаткові фільтри
+    if (category) {
+        // Змінюємо підхід - замість додавання нового include, додаємо where умову до існуючого
+        const categoryInclude = include.find(inc => inc.as === 'category');
+        categoryInclude.where = { name: category };
+        categoryInclude.required = true;
     }
 
     if (area) {
-        include.push({
-            model: Area,
-            as: 'area',
-            where: { name: area },
-            required: true,
-        });
+        const areaInclude = include.find(inc => inc.as === 'area');
+        areaInclude.where = { name: area };
+        areaInclude.required = true;
     }
 
     if (ingredient) {
-        include.push({
-            model: Ingredient,
-            as: 'ingredients',
-            where: { name: ingredient },
-            through: { attributes: [] },
-            required: true,
-        });
+        const ingredientInclude = include.find(inc => inc.as === 'ingredients');
+        ingredientInclude.where = { name: ingredient };
+        ingredientInclude.required = true;
     }
 
     const { rows, count } = await Recipe.findAndCountAll({
@@ -401,6 +456,7 @@ export const getFilteredRecipes = async ({ category, area, ingredient, page = 1,
         include,
         offset,
         limit,
+        order: [['createdAt', 'DESC']],
     });
 
     return {

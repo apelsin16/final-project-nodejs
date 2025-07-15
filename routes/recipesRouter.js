@@ -173,6 +173,47 @@ recipesRouter.get(
  *                         type: string
  *                       instructions:
  *                         type: string
+ *                       owner:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                           avatarURL:
+ *                             type: string
+ *                       category:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                       area:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           name:
+ *                             type: string
+ *                       ingredients:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             name:
+ *                               type: string
+ *                             img:
+ *                               type: string
+ *                             desc:
+ *                               type: string
+ *                             RecipeIngredient:
+ *                               type: object
+ *                               properties:
+ *                                 measure:
+ *                                   type: string
  *                 pagination:
  *                   type: object
  *                   properties:
