@@ -151,7 +151,7 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
     });
 
     const favoriteRecipes = await Recipe.findAll({
-        attributes: ['id', 'title', 'thumb', 'description'],
+        attributes: ['id', 'title', 'thumb', 'description', 'instructions'],
         include: [
             {
                 model: Favorite,

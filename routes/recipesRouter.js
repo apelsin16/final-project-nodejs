@@ -9,6 +9,7 @@ import {
     idParamsSchema,
     createRecipeSchema,
     getPopularRecipesQuerySchema,
+    userIdParamsSchema,
 } from '../schemas/recipesSchemas.js';
 import { searchRecipesQuerySchema } from '../schemas/searchSchemas.js';
 
@@ -91,7 +92,6 @@ const recipesRouter = express.Router();
  *                 totalPages:
  *                   type: integer
  */
-// GET /api/recipes - получить рецепты с поиском и фильтрацией (публичный)
 recipesRouter.get('/', validateQuery(searchRecipesQuerySchema), recipesController.getAllRecipes);
 
 /**
@@ -117,8 +117,6 @@ recipesRouter.get(
     validateQuery(getPopularRecipesQuerySchema),
     recipesController.getPopularRecipes
 );
-
-// Приватные роуты должны быть ДО /:recipeId
 
 recipesRouter.use(authenticate);
 
@@ -173,6 +171,41 @@ recipesRouter.get('/own', validateQuery(getFavoritesQuerySchema), recipesControl
  *     responses:
  *       200:
  *         description: Список обраних рецептів
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recipes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       thumb:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       instructions:
+ *                         type: string
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalRecipes:
+ *                       type: integer
+ *                     recipesPerPage:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
  */
 recipesRouter.get(
     '/favorites',
@@ -278,6 +311,78 @@ recipesRouter.post(
     '/:id/favorite',
     validateParams(idParamsSchema),
     ctrlWrapper(recipesController.addToFavorites)
+);
+
+/**
+ * @swagger
+ * /api/recipes/user/{userId}:
+ *   get:
+ *     tags:
+ *       - Recipes
+ *     summary: Get recipes by user ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 9
+ *     responses:
+ *       200:
+ *         description: List of user's recipes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recipes:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       thumb:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       instructions:
+ *                         type: string
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalRecipes:
+ *                       type: integer
+ *                     recipesPerPage:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ */
+recipesRouter.get(
+    '/user/:userId',
+    validateParams(userIdParamsSchema),
+    validateQuery(getFavoritesQuerySchema),
+    ctrlWrapper(recipesController.getUserRecipes)
 );
 
 /**

@@ -264,4 +264,86 @@ router.patch(
  */
 router.get('/:userId', validateParams(userIdSchema), userControllers.getUserByIdController);
 
+/**
+ * @swagger
+ * /api/users/{userId}/followers:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Отримати список підписників користувача за userId
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID користувача
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Номер сторінки
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Кількість підписників на сторінці
+ *     responses:
+ *       200:
+ *         description: Список підписників
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 followers:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       avatarURL:
+ *                         type: string
+ *                       recipes:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             title:
+ *                               type: string
+ *                             thumb:
+ *                               type: string
+ *                       totalRecipes:
+ *                         type: integer
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalFollowers:
+ *                       type: integer
+ *                     followersPerPage:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ */
+router.get(
+    '/:userId/followers',
+    validateParams(userIdSchema),
+    userControllers.getFollowersByUserIdController
+);
+
 export default router;
