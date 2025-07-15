@@ -54,6 +54,13 @@ const getFollowersController = async (req, res) => {
   res.json(followersData);
 };
 
+export const getFollowersByUserIdController = async (req, res) => {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const result = await getFollowersByUserId(userId, { page, limit });
+    res.json(result);
+};
+
 const updateUserAvatarController = async (req, res) => {
   if (!req.file) {
     throw HttpError(
@@ -92,18 +99,16 @@ const getCurrentDetailed = async (req, res) => {
 };
 
 const getUserByIdController = async (req, res) => {
-  const { userId } = req.params;
-  const requesterId = req.user.id;
+    const { userId } = req.params;
+    const requesterId = req.user.id;
 
-  if (userId === requesterId) {
-    // Если пользователь запрашивает сам себя — возвращаем расширенную инфу
-    const result = await getCurrentUserDetailed(req.user);
-    res.status(200).json({ ...result, requestedBy: requesterId });
-  } else {
-    // Если другой пользователь — стандартная инфа
-    const result = await getUserById(userId);
-    res.status(200).json({ ...result, requestedBy: requesterId });
-  }
+    if (userId === requesterId) {
+        const result = await getCurrentUserDetailed(req.user);
+        res.status(200).json({ ...result, requestedBy: requesterId });
+    } else {
+        const result = await getUserById(userId);
+        res.status(200).json({ ...result, requestedBy: requesterId });
+    }
 };
 
 const followUserController = async (req, res) => {
@@ -123,15 +128,16 @@ const unfollowUserController = async (req, res) => {
 };
 
 export default {
-  getFollowersController: ctrlWrapper(getFollowersController),
-  registerUser: ctrlWrapper(registerUser),
-  login: ctrlWrapper(login),
-  logout: ctrlWrapper(logout),
-  updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
-  getFollowingController: ctrlWrapper(getFollowingController),
-  getCurrent: ctrlWrapper(getCurrent),
-  getCurrentDetailed: ctrlWrapper(getCurrentDetailed),
-  getUserByIdController: ctrlWrapper(getUserByIdController),
-  followUserController: ctrlWrapper(followUserController),
-  unfollowUserController: ctrlWrapper(unfollowUserController),
+    getFollowersController: ctrlWrapper(getFollowersController),
+    registerUser: ctrlWrapper(registerUser),
+    login: ctrlWrapper(login),
+    logout: ctrlWrapper(logout),
+    updateUserAvatarController: ctrlWrapper(updateUserAvatarController),
+    getFollowingController: ctrlWrapper(getFollowingController),
+    getCurrent: ctrlWrapper(getCurrent),
+    getCurrentDetailed: ctrlWrapper(getCurrentDetailed),
+    getUserByIdController: ctrlWrapper(getUserByIdController),
+    followUserController: ctrlWrapper(followUserController),
+    unfollowUserController: ctrlWrapper(unfollowUserController),
+    getFollowersByUserIdController: ctrlWrapper(getFollowersByUserIdController),
 };

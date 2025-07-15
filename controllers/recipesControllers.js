@@ -1,5 +1,4 @@
 import ctrlWrapper from '../helpers/controllerWrapper.js';
-import { Recipe, User, Favorite } from '../db/models/index.js';
 import HttpError from '../helpers/HttpError.js';
 import * as recipesServices from '../services/recipesServices.js';
 
@@ -102,6 +101,13 @@ export const createRecipe = async (req, res, next) => {
     });
 };
 
+export const getUserRecipes = async (req, res, next) => {
+    const { userId } = req.params;
+    const { page = 1, limit = 9 } = req.query;
+    const result = await recipesServices.getOwnRecipes(userId, { page, limit });
+    res.json(result);
+};
+
 const getPopularRecipes = async (req, res, next) => {
     const { limit = 4 } = req.query;
 
@@ -120,4 +126,5 @@ export default {
     addToFavorites: ctrlWrapper(addToFavorites),
     createRecipe: ctrlWrapper(createRecipe),
     getPopularRecipes: ctrlWrapper(getPopularRecipes),
+    getUserRecipes: ctrlWrapper(getUserRecipes),
 };

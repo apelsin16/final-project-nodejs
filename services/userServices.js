@@ -184,6 +184,7 @@ export const getFollowersByUserId = async (userId, page = 1, limit = 9) => {
     followers: result,
     pagination,
   };
+
 };
 
 export const modifyUserAvatar = async (id, avatarURL) => {

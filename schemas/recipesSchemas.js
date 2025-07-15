@@ -29,6 +29,10 @@ export const idParamsSchema = Joi.object({
     }),
 });
 
+export const userIdParamsSchema = Joi.object({
+    userId: Joi.string().required(),
+});
+
 export const createRecipeSchema = Joi.object({
     title: Joi.string().min(1).max(255).required().messages({
         'string.empty': 'Title cannot be empty',
