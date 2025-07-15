@@ -110,12 +110,16 @@ export const getFollowingByUserId = async userId => {
     return result;
 };
 
-export const getFollowersByUserId = async userId => {
+export const getFollowersByUserId = async (userId, { page = 1, limit = 10 } = {}) => {
+    const offset = (page - 1) * limit;
     const followersLinks = await Follow.findAll({
         where: { followingId: userId },
         attributes: ['followerId'],
+        limit: parseInt(limit),
+        offset: parseInt(offset),
     });
 
+    const totalCount = await Follow.count({ where: { followingId: userId } });
     const followerIds = followersLinks.map(link => link.followerId);
 
     const followers = await User.findAll({
@@ -144,7 +148,19 @@ export const getFollowersByUserId = async userId => {
         })
     );
 
-    return result;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+        followers: result,
+        pagination: {
+            currentPage: parseInt(page),
+            totalPages,
+            totalFollowers: totalCount,
+            followersPerPage: parseInt(limit),
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+        },
+    };
 };
 
 export const modifyUserAvatar = async (id, avatarURL) => {

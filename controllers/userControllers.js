@@ -44,6 +44,13 @@ const getFollowersController = async (req, res) => {
     res.json({ followers });
 };
 
+export const getFollowersByUserIdController = async (req, res) => {
+    const { userId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const result = await getFollowersByUserId(userId, { page, limit });
+    res.json(result);
+};
+
 const updateUserAvatarController = async (req, res) => {
     if (!req.file) {
         throw HttpError(400, 'No file provided. Please upload an image file and try again.');
@@ -83,11 +90,9 @@ const getUserByIdController = async (req, res) => {
     const requesterId = req.user.id;
 
     if (userId === requesterId) {
-        // Если пользователь запрашивает сам себя — возвращаем расширенную инфу
         const result = await getCurrentUserDetailed(req.user);
         res.status(200).json({ ...result, requestedBy: requesterId });
     } else {
-        // Если другой пользователь — стандартная инфа
         const result = await getUserById(userId);
         res.status(200).json({ ...result, requestedBy: requesterId });
     }
@@ -121,4 +126,5 @@ export default {
     getUserByIdController: ctrlWrapper(getUserByIdController),
     followUserController: ctrlWrapper(followUserController),
     unfollowUserController: ctrlWrapper(unfollowUserController),
+    getFollowersByUserIdController: ctrlWrapper(getFollowersByUserIdController),
 };
