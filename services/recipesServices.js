@@ -183,7 +183,7 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
                 },
             },
         ],
-        order: [['createdAt', 'DESC']],
+        order: [['favoriteEntries', 'createdAt', 'DESC']],
         limit: parseInt(limit),
         offset: parseInt(offset),
     });
