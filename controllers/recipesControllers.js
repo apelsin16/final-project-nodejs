@@ -116,20 +116,6 @@ const getPopularRecipes = async (req, res, next) => {
     res.status(200).json({ popularRecipes });
 };
 
-const getRecipesByCategory = async (req, res) => {
-    const { categoryId } = req.params;
-    const { page = 1, limit = 12 } = req.query;
-
-    const result = await recipesServices.getRecipesByCategory(categoryId, { page, limit });
-
-    res.status(200).json({
-        success: true,
-        data: result.recipes,
-        pagination: result.pagination,
-        category: result.category,
-    });
-};
-
 export default {
     getAllRecipes: ctrlWrapper(getAllRecipes),
     getRecipeById: ctrlWrapper(getRecipeById),
@@ -140,6 +126,5 @@ export default {
     addToFavorites: ctrlWrapper(addToFavorites),
     createRecipe: ctrlWrapper(createRecipe),
     getPopularRecipes: ctrlWrapper(getPopularRecipes),
-    getRecipesByCategory: ctrlWrapper(getRecipesByCategory),
     getUserRecipes: ctrlWrapper(getUserRecipes),
 };

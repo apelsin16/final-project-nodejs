@@ -250,7 +250,10 @@ export const createRecipe = async (user, recipeData) => {
     });
 
     if (existingIngredients.length !== ingredientIds.length) {
-        throw HttpError(400, 'One or more ingredients not found. Please check your ingredient selection.');
+        throw HttpError(
+            400,
+            'One or more ingredients not found. Please check your ingredient selection.'
+        );
     }
 
     const newRecipe = await Recipe.create({
@@ -340,67 +343,6 @@ export const getPopularRecipes = async ({ limit = 10 }) => {
     });
 
     return recipes || [];
-};
-
-export const getRecipesByCategory = async (categoryId, { page = 1, limit = 12 }) => {
-    const offset = (page - 1) * limit;
-
-    // Проверяем, что категория существует
-    const category = await Category.findByPk(categoryId);
-    if (!category) {
-        throw HttpError(404, 'Category not found. Please check the category ID and try again.');
-    }
-
-    const { rows, count } = await Recipe.findAndCountAll({
-        where: { categoryId },
-        include: [
-            {
-                model: User,
-                as: 'owner',
-                attributes: ['id', 'name', 'avatarURL'],
-            },
-            {
-                model: Category,
-                as: 'category',
-                attributes: ['id', 'name'],
-            },
-            {
-                model: Area,
-                as: 'area',
-                attributes: ['id', 'name'],
-            },
-            {
-                model: Ingredient,
-                as: 'ingredients',
-                attributes: ['id', 'name', 'img', 'desc'],
-                through: {
-                    attributes: ['measure'],
-                },
-            },
-        ],
-        order: [['createdAt', 'DESC']],
-        offset: parseInt(offset),
-        limit: parseInt(limit),
-        distinct: true, // Fix pagination count with many-to-many relationships
-    });
-
-    const totalPages = Math.ceil(count / limit);
-
-    return {
-        recipes: rows || [],
-        pagination: {
-            currentPage: parseInt(page),
-            totalPages,
-            totalRecipes: count,
-            recipesPerPage: parseInt(limit),
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1,
-        },
-        category: {
-            id: category.id,
-            name: category.name,
-        },
-    };
 };
 
 export const getFilteredRecipes = async ({ category, area, ingredient, page = 1, limit = 12 }) => {

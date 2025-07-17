@@ -9,7 +9,6 @@ import {
     idParamsSchema,
     createRecipeSchema,
     getPopularRecipesQuerySchema,
-    categoryIdParamsSchema,
     userIdParamsSchema,
 } from '../schemas/recipesSchemas.js';
 import { searchRecipesQuerySchema } from '../schemas/searchSchemas.js';
@@ -117,133 +116,6 @@ recipesRouter.get(
     '/popular',
     validateQuery(getPopularRecipesQuerySchema),
     recipesController.getPopularRecipes
-);
-
-/**
- * @swagger
- * /api/recipes/category/{categoryId}:
- *   get:
- *     tags:
- *       - Recipes
- *     summary: Отримати рецепти за категорією
- *     description: Публічний ендпоінт для отримання рецептів конкретної категорії
- *     parameters:
- *       - in: path
- *         name: categoryId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID категорії
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Номер сторінки
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 12
- *         description: Кількість рецептів на сторінці
- *     responses:
- *       200:
- *         description: Список рецептів категорії
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: string
- *                       title:
- *                         type: string
- *                       description:
- *                         type: string
- *                       thumb:
- *                         type: string
- *                       time:
- *                         type: string
- *                       instructions:
- *                         type: string
- *                       owner:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           name:
- *                             type: string
- *                           avatarURL:
- *                             type: string
- *                       category:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           name:
- *                             type: string
- *                       area:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           name:
- *                             type: string
- *                       ingredients:
- *                         type: array
- *                         items:
- *                           type: object
- *                           properties:
- *                             id:
- *                               type: string
- *                             name:
- *                               type: string
- *                             img:
- *                               type: string
- *                             desc:
- *                               type: string
- *                             RecipeIngredient:
- *                               type: object
- *                               properties:
- *                                 measure:
- *                                   type: string
- *                 pagination:
- *                   type: object
- *                   properties:
- *                     currentPage:
- *                       type: integer
- *                     totalPages:
- *                       type: integer
- *                     totalRecipes:
- *                       type: integer
- *                     recipesPerPage:
- *                       type: integer
- *                     hasNextPage:
- *                       type: boolean
- *                     hasPrevPage:
- *                       type: boolean
- *                 category:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                     name:
- *                       type: string
- *       404:
- *         description: Категорія не знайдена
- */
-recipesRouter.get(
-    '/category/:categoryId',
-    validateParams(categoryIdParamsSchema),
-    validateQuery(getFavoritesQuerySchema),
-    recipesController.getRecipesByCategory
 );
 
 // Приватные роуты должны быть ДО /:recipeId
@@ -391,7 +263,11 @@ recipesRouter.delete(
  *       404:
  *         description: Рецепт не знайдено
  */
-recipesRouter.get('/:recipeId', validateParams(recipeIdParamsSchema), recipesController.getRecipeById);
+recipesRouter.get(
+    '/:recipeId',
+    validateParams(recipeIdParamsSchema),
+    recipesController.getRecipeById
+);
 
 /**
  * @swagger
