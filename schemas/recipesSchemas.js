@@ -29,6 +29,13 @@ export const idParamsSchema = Joi.object({
     }),
 });
 
+export const categoryIdParamsSchema = Joi.object({
+    categoryId: Joi.string().pattern(UUID_REGEX).required().messages({
+        'string.pattern.base': 'Invalid category ID format. Please provide a valid UUID.',
+        'any.required': 'Category ID is required',
+    }),
+});
+
 export const userIdParamsSchema = Joi.object({
     userId: Joi.string().required(),
 });

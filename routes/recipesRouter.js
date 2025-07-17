@@ -118,6 +118,8 @@ recipesRouter.get(
     recipesController.getPopularRecipes
 );
 
+// Приватные роуты должны быть ДО /:recipeId
+
 recipesRouter.use(authenticate);
 
 /**
@@ -261,7 +263,11 @@ recipesRouter.delete(
  *       404:
  *         description: Рецепт не знайдено
  */
-recipesRouter.get('/:recipeId', validateParams(recipeIdParamsSchema), recipesController.getRecipeById);
+recipesRouter.get(
+    '/:recipeId',
+    validateParams(recipeIdParamsSchema),
+    recipesController.getRecipeById
+);
 
 /**
  * @swagger
