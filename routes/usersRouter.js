@@ -1,7 +1,15 @@
 import express from 'express';
 import userControllers from '../controllers/userControllers.js';
-import { validateBody, validateParams, handleMulterError } from '../middlewares/validation.js';
-import { registerSchema, loginSchema, userIdSchema } from '../schemas/authSchemas.js';
+import {
+  validateBody,
+  validateParams,
+  handleMulterError,
+} from '../middlewares/validation.js';
+import {
+  registerSchema,
+  loginSchema,
+  userIdSchema,
+} from '../schemas/authSchemas.js';
 import { authenticate } from '../middlewares/./authenticate.js';
 import { upload } from '../middlewares/upload.js';
 
@@ -43,7 +51,11 @@ const router = express.Router();
  *       400:
  *         description: Помилка валідації
  */
-router.post('/register', validateBody(registerSchema), userControllers.registerUser);
+router.post(
+  '/register',
+  validateBody(registerSchema),
+  userControllers.registerUser
+);
 
 /**
  * @swagger
@@ -171,7 +183,11 @@ router.get('/followers', userControllers.getFollowersController);
  *       200:
  *         description: Успішно підписався
  */
-router.post('/follow/:userId', validateParams(userIdSchema), userControllers.followUserController);
+router.post(
+  '/follow/:userId',
+  validateParams(userIdSchema),
+  userControllers.followUserController
+);
 
 /**
  * @swagger
@@ -193,7 +209,11 @@ router.post('/follow/:userId', validateParams(userIdSchema), userControllers.fol
  *       200:
  *         description: Успішно відписався
  */
-router.delete('/follow/:userId', validateParams(userIdSchema), userControllers.unfollowUserController);
+router.delete(
+  '/follow/:userId',
+  validateParams(userIdSchema),
+  userControllers.unfollowUserController
+);
 
 /**
  * @swagger
@@ -234,10 +254,10 @@ router.post('/logout', userControllers.logout);
  *         description: Аватар оновлено
  */
 router.patch(
-    '/avatars',
-    upload.single('avatar'),
-    handleMulterError,
-    userControllers.updateUserAvatarController
+  '/avatars',
+  upload.single('avatar'),
+  handleMulterError,
+  userControllers.updateUserAvatarController
 );
 
 /**
@@ -262,6 +282,92 @@ router.patch(
  *       401:
  *         description: Не авторизований
  */
-router.get('/:userId', validateParams(userIdSchema), userControllers.getUserByIdController);
+router.get(
+  '/:userId',
+  validateParams(userIdSchema),
+  userControllers.getUserByIdController
+);
+
+/**
+ * @swagger
+ * /api/users/{userId}/followers:
+ *   get:
+ *     tags:
+ *       - Users
+ *     summary: Отримати список підписників користувача за userId
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID користувача
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Номер сторінки
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Кількість підписників на сторінці
+ *     responses:
+ *       200:
+ *         description: Список підписників
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 followers:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       name:
+ *                         type: string
+ *                       avatarURL:
+ *                         type: string
+ *                       recipes:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             title:
+ *                               type: string
+ *                             thumb:
+ *                               type: string
+ *                       totalRecipes:
+ *                         type: integer
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalFollowers:
+ *                       type: integer
+ *                     followersPerPage:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ */
+router.get(
+  '/:userId/followers',
+  validateParams(userIdSchema),
+  userControllers.getOtherFollowersByUserIdController
+);
 
 export default router;
