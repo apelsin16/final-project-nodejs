@@ -380,6 +380,7 @@ export const getRecipesByCategory = async (categoryId, { page = 1, limit = 12 })
         order: [['createdAt', 'DESC']],
         offset: parseInt(offset),
         limit: parseInt(limit),
+        distinct: true, // Fix pagination count with many-to-many relationships
     });
 
     const totalPages = Math.ceil(count / limit);
@@ -454,18 +455,23 @@ export const getFilteredRecipes = async ({ category, area, ingredient, page = 1,
     const { rows, count } = await Recipe.findAndCountAll({
         where,
         include,
-        offset,
-        limit,
+        offset: parseInt(offset),
+        limit: parseInt(limit),
         order: [['createdAt', 'DESC']],
+        distinct: true, // Fix pagination count with many-to-many relationships
     });
+
+    const totalPages = Math.ceil(count / limit);
 
     return {
         recipes: rows,
         pagination: {
-            total: count,
-            page,
-            limit,
-            totalPages: Math.ceil(count / limit),
+            currentPage: parseInt(page),
+            totalPages,
+            totalRecipes: count,
+            recipesPerPage: parseInt(limit),
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
         },
     };
 };
