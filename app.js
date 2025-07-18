@@ -20,7 +20,8 @@ const app = express();
 app.use(morgan('tiny'));
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
+
+app.use('/api/uploads', express.static(path.resolve('public', 'uploads')));
 
 app.use('/api/users', userRouter);
 app.use('/api/categories', categoriesRouter);

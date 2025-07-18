@@ -2,7 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import { avatarFileSchema } from '../schemas/authSchemas.js';
 
-const tempDir = path.resolve('temp');
+const tempDir = path.resolve('public', 'uploads', 'recipes');
 
 const multerConfig = multer.diskStorage({
     destination: (req, file, cb) => {

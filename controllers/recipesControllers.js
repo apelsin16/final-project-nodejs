@@ -95,7 +95,7 @@ export const createRecipe = async (req, res, next) => {
 
     
     if (req.file) {
-        recipeData.thumb = `/uploads/recipes/${req.file.filename}`; // збереження URL
+        recipeData.thumb = `/api/uploads/recipes/${req.file.filename}`; // збереження URL
     }
     if (typeof recipeData.ingredients === 'string') {
         recipeData.ingredients = JSON.parse(recipeData.ingredients);
