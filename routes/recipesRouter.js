@@ -12,6 +12,7 @@ import {
     userIdParamsSchema,
 } from '../schemas/recipesSchemas.js';
 import { searchRecipesQuerySchema } from '../schemas/searchSchemas.js';
+import { upload } from '../middlewares/upload.js';
 
 const recipesRouter = express.Router();
 
@@ -441,6 +442,19 @@ recipesRouter.get(
  *       400:
  *         description: Помилка валідації
  */
-recipesRouter.post('/', validateBody(createRecipeSchema), recipesController.createRecipe);
+recipesRouter.post('/', 
+    upload.single('image'), // multer
+    (req, res, next) => {
+        if (req.body.ingredients) {
+            try {
+                req.body.ingredients = JSON.parse(req.body.ingredients);
+            } catch (err) {
+                return res.status(400).json({ message: 'Invalid ingredients format' });
+            }
+        }
+        next();
+    }, 
+    validateBody(createRecipeSchema), 
+    recipesController.createRecipe);
 
 export default recipesRouter;

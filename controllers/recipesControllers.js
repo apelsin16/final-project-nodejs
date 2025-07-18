@@ -93,8 +93,14 @@ const addToFavorites = async (req, res) => {
 export const createRecipe = async (req, res, next) => {
     const recipeData = req.body;
 
+    
+    if (req.file) {
+        recipeData.thumb = `/uploads/recipes/${req.file.filename}`; // збереження URL
+    }
+    if (typeof recipeData.ingredients === 'string') {
+        recipeData.ingredients = JSON.parse(recipeData.ingredients);
+    }
     const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
-
     res.status(201).json({
         message: 'Recipe created successfully',
         recipe: newRecipe,
