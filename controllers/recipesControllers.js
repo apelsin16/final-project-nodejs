@@ -93,19 +93,37 @@ const addToFavorites = async (req, res) => {
 export const createRecipe = async (req, res, next) => {
     const recipeData = req.body;
 
-    
-    if (req.file) {
-        recipeData.thumb = `/api/uploads/recipes/${req.file.filename}`; // збереження URL
+    try {
+        // Якщо завантажено файл
+        if (req.file) {
+            await fs.mkdir(recipesDir, { recursive: true }); // створює папку, якщо немає
+            const finalPath = path.join(recipesDir, req.file.filename);
+
+            // Переміщення з temp у public/uploads/recipes
+            await fs.rename(req.file.path, finalPath);
+
+            // Формування публічного URL
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
+            recipeData.thumb = `${baseUrl}/api/uploads/recipes/${req.file.filename}`;
+        }
+
+        // Якщо інгредієнти у форматі JSON-строки — парсимо
+        if (typeof recipeData.ingredients === 'string') {
+            recipeData.ingredients = JSON.parse(recipeData.ingredients);
+        }
+
+        // Створюємо рецепт через сервіс
+        const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
+
+        res.status(201).json({
+            message: 'Recipe created successfully',
+            recipe: newRecipe,
+        });
+    } catch (error) {
+        next(error);
     }
-    if (typeof recipeData.ingredients === 'string') {
-        recipeData.ingredients = JSON.parse(recipeData.ingredients);
-    }
-    const newRecipe = await recipesServices.createRecipe(req.user, recipeData);
-    res.status(201).json({
-        message: 'Recipe created successfully',
-        recipe: newRecipe,
-    });
 };
+
 
 export const getUserRecipes = async (req, res, next) => {
     const { userId } = req.params;
