@@ -88,6 +88,11 @@ export const getOwnRecipes = async (userId, { page = 1, limit = 9 }) => {
                     attributes: ['measure'],
                 },
             },
+             {
+                model: User,
+                as: 'owner',
+                attributes: ['id', 'name', 'avatarURL'],
+            },
         ],
         order: [['createdAt', 'DESC']],
         limit: parseInt(limit),
