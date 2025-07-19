@@ -1,6 +1,10 @@
 import ctrlWrapper from '../helpers/controllerWrapper.js';
 import HttpError from '../helpers/HttpError.js';
 import * as recipesServices from '../services/recipesServices.js';
+import path from 'path';
+import fs from 'fs/promises';
+
+const recipesDir = path.resolve('public', 'uploads', 'recipes');
 
 const getAllRecipes = async (req, res) => {
     const { category, area, ingredient, page, limit } = req.query;
@@ -96,15 +100,16 @@ export const createRecipe = async (req, res, next) => {
     try {
         // Якщо завантажено файл
         if (req.file) {
-            await fs.mkdir(recipesDir, { recursive: true }); // створює папку, якщо немає
             const finalPath = path.join(recipesDir, req.file.filename);
 
-            // Переміщення з temp у public/uploads/recipes
-            await fs.rename(req.file.path, finalPath);
+            // Створити папку (якщо нема)
+            await fs.mkdir(recipesDir, { recursive: true });
 
-            // Формування публічного URL
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
-            recipeData.thumb = `${baseUrl}/api/uploads/recipes/${req.file.filename}`;
+            // Перемістити файл
+            await fs.rename(req.file.path, finalPath);
+                // Формування публічного URL
+                const baseUrl = `${req.protocol}://${req.get('host')}`;
+                recipeData.thumb = `${baseUrl}/api/uploads/recipes/${req.file.filename}`;
         }
 
         // Якщо інгредієнти у форматі JSON-строки — парсимо

@@ -13,8 +13,6 @@ import categoriesRouter from './routes/categoriesRouter.js';
 import areasRouter from './routes/areasRouter.js';
 import { swaggerDocs } from './middlewares/swaggerDocs.js';
 
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
-
 const app = express();
 
 app.use(morgan('tiny'));
