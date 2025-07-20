@@ -156,7 +156,7 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
     });
 
     const favoriteRecipes = await Recipe.findAll({
-        attributes: ['id', 'title', 'thumb', 'description', 'instructions'],
+        attributes: ['id', 'title', 'thumb', 'description', 'instructions', 'createdAt'],
         include: [
             {
                 model: Favorite,
@@ -308,7 +308,7 @@ export const getPopularRecipes = async ({ limit = 10 }) => {
                     sequelize.literal(`(
                         SELECT COUNT(*)
                         FROM favorites
-                        WHERE favorites."recipeId" = "Recipe"."id"
+                        WHERE favorites."recipeId" = "Recipes"."id"
                     )`),
                     'favorites_count',
                 ],
