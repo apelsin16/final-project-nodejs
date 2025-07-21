@@ -88,7 +88,7 @@ export const getOwnRecipes = async (userId, { page = 1, limit = 9 }) => {
                     attributes: ['measure'],
                 },
             },
-             {
+            {
                 model: User,
                 as: 'owner',
                 attributes: ['id', 'name', 'avatarURL'],
@@ -162,7 +162,7 @@ export const getFavoriteRecipes = async (user, { page = 1, limit = 9 }) => {
                 model: Favorite,
                 as: 'favoriteEntries',
                 where: { userId: user.id },
-                attributes: [],
+                attributes: ['createdAt'],
             },
             {
                 model: User,
@@ -308,7 +308,7 @@ export const getPopularRecipes = async ({ limit = 10 }) => {
                     sequelize.literal(`(
                         SELECT COUNT(*)
                         FROM favorites
-                        WHERE favorites."recipeId" = "Recipes"."id"
+                        WHERE favorites."recipeId" = "Recipe"."id"
                     )`),
                     'favorites_count',
                 ],

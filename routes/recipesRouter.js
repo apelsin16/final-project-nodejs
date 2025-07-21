@@ -119,6 +119,34 @@ recipesRouter.get(
     recipesController.getPopularRecipes
 );
 
+/**
+ * @swagger
+ * /api/recipes/{recipeId}:
+ *   get:
+ *     tags:
+ *       - Recipes
+ *     summary: Отримати рецепт за ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: recipeId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID рецепта
+ *     responses:
+ *       200:
+ *         description: Детальна інформація про рецепт
+ *       404:
+ *         description: Рецепт не знайдено
+ */
+recipesRouter.get(
+    '/:recipeId([0-9a-fA-F\\-]{36})',
+    validateParams(recipeIdParamsSchema),
+    recipesController.getRecipeById
+);
+
 // Приватные роуты должны быть ДО /:recipeId
 
 recipesRouter.use(authenticate);
@@ -240,34 +268,6 @@ recipesRouter.delete(
     '/:recipeId/favorite',
     validateParams(recipeIdParamsSchema),
     ctrlWrapper(recipesController.removeFavoriteRecipe)
-);
-
-/**
- * @swagger
- * /api/recipes/{recipeId}:
- *   get:
- *     tags:
- *       - Recipes
- *     summary: Отримати рецепт за ID
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: recipeId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID рецепта
- *     responses:
- *       200:
- *         description: Детальна інформація про рецепт
- *       404:
- *         description: Рецепт не знайдено
- */
-recipesRouter.get(
-    '/:recipeId',
-    validateParams(recipeIdParamsSchema),
-    recipesController.getRecipeById
 );
 
 /**
@@ -442,7 +442,7 @@ recipesRouter.get(
  *       400:
  *         description: Помилка валідації
  */
-recipesRouter.post('/', 
+recipesRouter.post('/',
     upload.single('image'), // multer
     (req, res, next) => {
         if (req.body.ingredients) {
@@ -453,8 +453,8 @@ recipesRouter.post('/',
             }
         }
         next();
-    }, 
-    validateBody(createRecipeSchema), 
+    },
+    validateBody(createRecipeSchema),
     recipesController.createRecipe);
 
 export default recipesRouter;
